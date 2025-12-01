@@ -1,8 +1,8 @@
 /****************************************************************
  * Project Name:  Stardew_Valley
  * File Name:     TimeManager.cpp
- * File Function: ÓÎÏ·ÄÚÊ±¼ä¹ÜÀíTimeManagerµÄ¶¨Òå
- * Author:        ´ïË¼î£
+ * File Function: ï¿½ï¿½Ï·ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½ï¿½TimeManagerï¿½Ä¶ï¿½ï¿½ï¿½
+ * Author:        ï¿½ï¿½Ë¼ï¿½
  * Update Date:   2024/12/21
  * License:       MIT License
  ****************************************************************/
@@ -11,74 +11,87 @@
 #define __TIMEMANAGER_H__
 
 #include "cocos2d.h"
-#include "../proj.win32/Constant.h"
+#include "proj.win32/Constant.h"
+#include "Observer/TimeObserver.h"
+#include <vector>
 
+// æ—¶é—´ç®¡ç†å™¨ï¼šè´Ÿè´£å…¨å±€æ¸¸æˆæ—¶é—´ï¼Œå¹¶ä½œä¸º Observer æ¨¡å¼ä¸­çš„ Subject
 class TimeManager {
 public:
-    // »ñÈ¡ TimeManager µÄµ¥Àı
+    // è·å– TimeManager çš„å•ä¾‹
     static TimeManager* getInstance();
 
-    // ¸üĞÂÓÎÏ·Ê±¼ä
+    // æ›´æ–°æ—¶é—´ï¼ˆä»¥â€œæ¸¸æˆç§’â€ä¸ºå•ä½æ¨è¿›ï¼‰
     void update(int deltaT);
 
-    // »ñÈ¡µ±Ç°ĞÇÆÚ¼¸£¨Èç£ºĞÇÆÚÒ»¡¢ĞÇÆÚ¶ş£©
+    // è·å–å½“å‰æ˜ŸæœŸå‡ ï¼Œä¾‹å¦‚ï¼šMonday, Tuesday...
     std::string getWeekDay() const;
 
-    // »ñÈ¡µ±Ç°Ê±¼ä£¨Ğ¡Ê±:·ÖÖÓ£©¸ñÊ½µÄ×Ö·û´®
+    // è·å–å½“å‰æ—¶é—´ï¼ˆå°æ—¶:åˆ†é’Ÿï¼Œå­—ç¬¦ä¸²æ ¼å¼ï¼‰
     std::string getCurrentTime() const;
 
-    // »ñÈ¡µ±Ç°¼¾½Ú
+    // è·å–å½“å‰å­£èŠ‚
     Season getCurrentSeason() const;
 
-    // »ñÈ¡µ±Ç°¼¾½ÚµÄ×Ö·û´®±íÊ¾
+    // è·å–å½“å‰å­£èŠ‚çš„å­—ç¬¦ä¸²è¡¨ç¤º
     std::string getCurrentSeasonStr() const;
 
-    // »ñÈ¡µ±Ç°ÓÎÏ·ÈÕ
+    // è·å–å½“å‰æ¸¸æˆå¤©æ•°
     int getCurrentDay() const;
 
-    // »ñÈ¡µ±Ç°ÌìÆø
+    // è·å–å½“å‰å¤©æ°”
     Weather getCurrentWeather() const;
 
-    // »ñÈ¡µ±Ç°ÌìÆøµÄ×Ö·û´®±íÊ¾
+    // è·å–å½“å‰å¤©æ°”çš„å­—ç¬¦ä¸²è¡¨ç¤º
     std::string getCurrentWeatherStr() const;
 
-    // ÅĞ¶ÏÊÇ·ñÊÇ°×Ìì
+    // åˆ¤æ–­å½“å‰æ˜¯å¦ä¸ºç™½å¤©
     bool isDaytime() const;
 
-    // Æô¶¯Ê±¼ä¸üĞÂ
+    // å¼€å§‹æ—¶é—´æ›´æ–°
     void startUpdating();
 
-    // Í£Ö¹Ê±¼ä¸üĞÂ
+    // åœæ­¢æ—¶é—´æ›´æ–°
     void stopUpdating();
 
+    // Observer æ³¨å†Œ/æ³¨é”€
+    void attach(TimeObserver* observer);
+    void detach(TimeObserver* observer);
+
+    // ä¸»åŠ¨é€šçŸ¥ï¼ˆé€šå¸¸ç”± TimeManager å†…éƒ¨è°ƒç”¨ï¼‰
+    void notifyDayChanged(int day);
+    void notifySeasonChanged(Season season);
+    void notifyTimeChanged(int hour, int minute);
+
 private:
-    // ¹¹Ôìº¯Êı
+    // æ„é€ å‡½æ•°
     TimeManager();
 
-    // Îö¹¹º¯Êı
-    ~TimeManager(); 
+    // ææ„å‡½æ•°
+    ~TimeManager();
 
-    // ¸üĞÂÊ±¼ä£¨Ğ¡Ê±¡¢·ÖÖÓ¡¢ÌìÊı£©
+    // è®¡ç®—å½“å‰çš„å°æ—¶ã€åˆ†é’Ÿã€å¤©æ•°
     void updateTime();
 
-    // ¸üĞÂÖçÒ¹ÖÜÆÚ
+    // æ›´æ–°æ˜¼å¤œçŠ¶æ€
     void updateDayNightCycle();
 
-    // ¸üĞÂ¼¾½Ú
+    // æ›´æ–°å­£èŠ‚
     void updateSeason();
 
-    // ¸üĞÂÌìÆø
+    // éšæœºæ›´æ–°å¤©æ°”
     void updateWeather();
 
-    
+    int _timeInSeconds;   // æ¸¸æˆä¸­çš„æ—¶é—´ï¼ˆä»¥â€œå°æ—¶â€ä¸ºå•ä½çš„ç´¯ç§¯å€¼ï¼‰
+    int _day;             // å½“å‰æ¸¸æˆå¤©æ•°
+    int _hour;            // å½“å‰å°æ—¶
+    int _minute;          // å½“å‰åˆ†é’Ÿ
+    Season _season;       // å½“å‰å­£èŠ‚
+    Weather _weather;     // å½“å‰å¤©æ°”
+    bool _isDay;          // æ˜¯å¦ä¸ºç™½å¤©
 
-    int _timeInSeconds;  // ÓÎÏ·×ÜÊ±¼ä£¨Ãë£©
-    int _day;            // µ±Ç°ÓÎÏ·ÈÕ
-    int _hour;           // µ±Ç°Ğ¡Ê±
-    int _minute;         // µ±Ç°·ÖÖÓ
-    Season _season;      // µ±Ç°¼¾½Ú
-    Weather _weather;    // µ±Ç°ÌìÆø
-    bool _isDay;         // ÊÇ·ñÎª°×Ìì
+    // è§‚å¯Ÿè€…åˆ—è¡¨
+    std::vector<TimeObserver*> _observers;
 };
 
 #endif // ! __TIMEMANAGER_H__

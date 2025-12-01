@@ -2,76 +2,97 @@
 /****************************************************************
  * Project Name:  Stardew_Valley
  * File Name:     NpcManager.cpp
- * File Function: ¸ºÔð¹ÜÀíÓÎÏ·ÖÐµÄ NPC ÊµÀýµÄNpcManagerÀàµÄÊµÏÖ¡£
- * Author:        ´ïË¼î£
- * Update Date:   2024/12/13
+ * File Function: ç®¡ç†æ¸¸æˆä¸­çš„ NPC å®žä¾‹ï¼Œè´Ÿè´£åˆ›å»ºã€æŸ¥è¯¢ä¸Žå¯¹è¯ç­‰åŠŸèƒ½
+ * Author:        ï¿½ï¿½Ë¼ï¿½
+ * Update Date:   2024/12/22
  * License:       MIT License
  ****************************************************************/
 #include "NpcManager.h"
+#include "Control/TimeManager.h"
 
-
-
-// ¹¹Ôìº¯Êý
+// æž„é€ å‡½æ•°
 NpcManager::NpcManager() {}
 
-// Îö¹¹º¯Êý
+// æžæž„å‡½æ•°
 NpcManager::~NpcManager() {
+    // ä»Žæ—¶é—´ç®¡ç†å™¨æ³¨é”€æ‰€æœ‰ NPC è§‚å¯Ÿè€…
+    TimeManager* timeManager = TimeManager::getInstance();
+    if (timeManager) {
+        for (auto npc : _npcs) {
+            timeManager->detach(npc);
+        }
+    }
+
     for (auto npc : _npcs) {
         delete npc;
     }
     _npcs.clear();
 }
 
-// »ñÈ¡µ¥ÀýÊµÀý
+// èŽ·å–å•ä¾‹
 NpcManager* NpcManager::getInstance() {
-    static NpcManager* _instance = nullptr;  // µ¥ÀýÊµÀý
+    static NpcManager* _instance = nullptr;
     if (!_instance) {
-        _instance = new NpcManager();  // Èç¹ûÊµÀý²»´æÔÚ£¬Ôò´´½¨
+        _instance = new NpcManager();
     }
     return _instance;
 }
 
-// ³õÊ¼»¯ NPC
+// åˆå§‹åŒ– NPC
 void NpcManager::initializeNPCs() {
-    // ³õÊ¼»¯ NPC ÊµÀý£¬²¢Ìí¼Óµ½ npcs ÁÐ±í
-    NPC* npc1 = new NPC("Abigail", cocos2d::Vec2(100, 160), "../Resources/Characters/NPC/Abigail_1.png", { "../Resources/Characters/NPC/Abigail_1.png", "../Resources/Characters/NPC/Abigail_2.png" ,"../Resources/Characters/NPC/Abigail_3.png","../Resources/Characters/NPC/Abigail_4.png" });
+    // åˆå§‹åŒ– NPC å®žä¾‹ï¼Œå¹¶æ·»åŠ åˆ°åˆ—è¡¨
+    NPC* npc1 = new NPC("Abigail", cocos2d::Vec2(100, 160),
+        "../Resources/Characters/NPC/Abigail_1.png",
+        { "../Resources/Characters/NPC/Abigail_1.png",
+          "../Resources/Characters/NPC/Abigail_2.png",
+          "../Resources/Characters/NPC/Abigail_3.png",
+          "../Resources/Characters/NPC/Abigail_4.png" });
     npc1->_dialogues = {
         "Hello, traveler",
         "I feel like you care about me",
         "Thank you for the gift"
     };
-    // Ìí¼ÓÈÎÎñ¸ø Abigail£¨ÏÖÔÚ½±ÀøÊÇºÃ¸Ð¶È£©
-    Task* task1 = new Task("Give me a gift (I like pumpkin)", "pumpkin", 1, 10);               
-    Task* task2 = new Task("Help me repair the building.","Timber", 4, 20);                  
+    // ä¸º Abigail æ·»åŠ ä¸¤ä¸ªä»»åŠ¡
+    Task* task1 = new Task("Give me a gift (I like pumpkin)", "pumpkin", 1, 10);
+    Task* task2 = new Task("Help me repair the building.", "Timber", 4, 20);
 
     npc1->addTask(task1);
     npc1->addTask(task2);
     _npcs.push_back(npc1);
- 
 
-    NPC* npc2 = new NPC("Mary", cocos2d::Vec2(300, 200), "../Resources/Characters/NPC/Abigail_1.png", { "../Resources/Characters/NPC/Abigail_1.png", "../Resources/Characters/NPC/Abigail_2.png" });
+    NPC* npc2 = new NPC("Mary", cocos2d::Vec2(300, 200),
+        "../Resources/Characters/NPC/Abigail_1.png",
+        { "../Resources/Characters/NPC/Abigail_1.png",
+          "../Resources/Characters/NPC/Abigail_2.png" });
     npc2->_dialogues = {
         "Welcome",
         "You are a kind person",
         "I appreciate your thoughtfulness"
     };
     _npcs.push_back(npc2);
-   
+
+    // å°†æ‰€æœ‰ NPC æ³¨å†Œä¸ºæ—¶é—´è§‚å¯Ÿè€…
+    TimeManager* timeManager = TimeManager::getInstance();
+    if (timeManager) {
+        for (auto npc : _npcs) {
+            timeManager->attach(npc);
+        }
+    }
 }
 
-// ¸ù¾ÝÃû³Æ»ñÈ¡ NPC
+// æ ¹æ®åå­—èŽ·å– NPC
 NPC* NpcManager::getNPCByName(const std::string& name) {
     for (auto npc : _npcs) {
         if (npc->getName() == name) {
             return npc;
         }
     }
-    return nullptr;  // Èç¹ûÃ»ÓÐÕÒµ½ NPC£¬Ôò·µ»Ø nullptr
+    return nullptr;
 }
 
-// ÏÔÊ¾ NPC ¶Ô»°
+// æ˜¾ç¤º NPC å¯¹è¯
 void NpcManager::showDialog(NPC* npc) {
     if (npc) {
-        npc->showDialog();  // µ÷ÓÃ NPC µÄ¶Ô»°·½·¨
+        npc->showDialog();
     }
 }

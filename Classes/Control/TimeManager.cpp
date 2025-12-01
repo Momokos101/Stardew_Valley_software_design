@@ -1,93 +1,114 @@
 #include "TimeManager.h"
 
+#include <algorithm>
+
 USING_NS_CC;
 
-
-
-// »ñÈ¡ TimeManager µÄµ¥Àı
+// è·å– TimeManager çš„å•ä¾‹
 TimeManager* TimeManager::getInstance() {
-    static TimeManager* instance=nullptr;  // µ¥ÀıÖ¸Õë
+    static TimeManager* instance = nullptr;
     if (instance == nullptr) {
         instance = new TimeManager();
     }
     return instance;
 }
 
-// ¹¹Ôìº¯Êı
+// æ„é€ å‡½æ•°
 TimeManager::TimeManager()
-    : _timeInSeconds(INIT_HOUR), _day(INIT_DAY),_hour(INIT_HOUR), _minute(INIT_MIN), _season(INIT_SEASON), _isDay(INIT_IS_DAY), _weather(INIT_WEATHER) {
-    // ³õÊ¼»¯Ê±¼ä£¨´ÓµÚ1ÌìµÄ6:00¿ªÊ¼£©
+    : _timeInSeconds(INIT_HOUR),
+      _day(INIT_DAY),
+      _hour(INIT_HOUR),
+      _minute(INIT_MIN),
+      _season(INIT_SEASON),
+      _weather(INIT_WEATHER),
+      _isDay(INIT_IS_DAY) {
+    // åˆå§‹åŒ–æ—¶é—´ï¼ˆä»ç¬¬ INIT_DAY å¤© INIT_HOUR:INIT_MIN å¼€å§‹ï¼‰
     updateTime();
 }
 
-// Îö¹¹º¯Êı
+// ææ„å‡½æ•°
 TimeManager::~TimeManager() {
-    // Èç¹ûĞèÒª£¬¿ÉÒÔÔÚ´ËÇåÀí×ÊÔ´
+    // å¦‚æœ‰éœ€è¦ï¼Œå¯åœ¨æ­¤å¤„æ¸…ç†èµ„æº
 }
 
-// ¸üĞÂÓÎÏ·Ê±¼ä
+// æ›´æ–°æ—¶é—´
 void TimeManager::update(int deltaT) {
-    // Ã¿´Îµ÷ÓÃÊ±¸üĞÂÓÎÏ·Ê±¼ä£¬deltaTÎªÏÖÊµÊÀ½çµÄÃëÊı
+    // è®°å½•æ›´æ–°å‰çš„æ—¶é—´ä¸å­£èŠ‚ï¼Œç”¨äºè§¦å‘ Observer é€šçŸ¥
+    int oldDay = _day;
+    int oldHour = _hour;
+    int oldMinute = _minute;
+    Season oldSeason = _season;
+
+    // æ¨è¿›æ¸¸æˆæ—¶é—´
     _timeInSeconds += deltaT;
 
-    // ·ÀÖ¹ `timeInSeconds` ³¬¹ı×î´ó·¶Î§£¬Ê¹ÓÃÄ£ÔËËãÑ­»·¼ÆÊ±
-    _timeInSeconds %= (HOURS_IN_A_DAY * DAYS_IN_A_YEAR); 
+    // é˜²æ­¢ timeInSeconds è¿‡å¤§ï¼Œä½¿ç”¨æ¨¡è¿ç®—å½¢æˆå¾ªç¯æ—¶é—´
+    _timeInSeconds %= (HOURS_IN_A_DAY * DAYS_IN_A_YEAR);
 
     updateTime();
     updateDayNightCycle();
     updateSeason();
+
+    // æ ¹æ®å˜åŒ–è§¦å‘é€šçŸ¥
+    if (_day != oldDay) {
+        notifyDayChanged(_day);
+    }
+    if (_season != oldSeason) {
+        notifySeasonChanged(_season);
+    }
+    if (_hour != oldHour || _minute != oldMinute) {
+        notifyTimeChanged(_hour, _minute);
+    }
 }
 
-// »ñÈ¡µ±Ç°ĞÇÆÚ¼¸
+// è·å–å½“å‰æ˜ŸæœŸå‡ 
 std::string TimeManager::getWeekDay() const {
     std::string weekDays[] = { "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday" };
-    return weekDays[(_day - 1) % DAYS_IN_A_WEEK];  // ½«ÌìÊı×ª»¯ÎªĞÇÆÚ¼¸
+    return weekDays[(_day - 1) % DAYS_IN_A_WEEK];
 }
 
-// »ñÈ¡µ±Ç°Ê±¼ä£¨Ğ¡Ê±:·ÖÖÓ£©¸ñÊ½µÄ×Ö·û´®
+// è·å–å½“å‰æ—¶é—´ï¼ˆå°æ—¶:åˆ†é’Ÿï¼‰
 std::string TimeManager::getCurrentTime() const {
-    // ·µ»Øµ±Ç°Ê±¼ä£¨Ğ¡Ê±:·ÖÖÓ£©¸ñÊ½
     return StringUtils::format("%02d:%02d", _hour, _minute);
 }
 
-// »ñÈ¡µ±Ç°¼¾½Ú
+// è·å–å½“å‰å­£èŠ‚
 Season TimeManager::getCurrentSeason() const {
     return _season;
 }
 
-// »ñÈ¡µ±Ç°¼¾½ÚµÄ×Ö·û´®±íÊ¾
+// è·å–å½“å‰å­£èŠ‚å­—ç¬¦ä¸²
 std::string TimeManager::getCurrentSeasonStr() const {
     switch (_season) {
     case Spring:
-        return "Spr";  // ´ºÌì
+        return "Spr";
     case Summer:
-        return "Sum";  // ÏÄÌì
+        return "Sum";
     case Fall:
-        return "Aut";  // ÇïÌì
+        return "Aut";
     case Winter:
-        return "Win";  // ¶¬Ìì
+        return "Win";
     default:
-        return "Unknown";  // Ä¬ÈÏ·µ»ØÎ´Öª
+        return "Unknown";
     }
 }
 
-// »ñÈ¡µ±Ç°ÈÕÆÚ
+// è·å–å½“å‰å¤©æ•°
 int TimeManager::getCurrentDay() const {
     return _day;
 }
 
-// ¸üĞÂÖçÒ¹ÖÜÆÚ
+// æ›´æ–°æ˜¼å¤œçŠ¶æ€
 void TimeManager::updateDayNightCycle() {
-    // ¸ù¾İÊ±¼äÀ´¸üĞÂÖçÒ¹±ä»¯
     _isDay = (_hour >= DAY_START && _hour < DAY_END);
 }
 
-// »ñÈ¡µ±Ç°ÌìÆø
+// è·å–å½“å‰å¤©æ°”
 Weather TimeManager::getCurrentWeather() const {
     return _weather;
 }
 
-// »ñÈ¡µ±Ç°ÌìÆøµÄ×Ö·û´®±íÊ¾
+// è·å–å½“å‰å¤©æ°”å­—ç¬¦ä¸²
 std::string TimeManager::getCurrentWeatherStr() const {
     switch (_weather) {
     case Sunny:
@@ -101,58 +122,55 @@ std::string TimeManager::getCurrentWeatherStr() const {
     }
 }
 
-// ÅĞ¶ÏÊÇ·ñÊÇ°×Ìì
+// æ˜¯å¦ä¸ºç™½å¤©
 bool TimeManager::isDaytime() const {
     return _isDay;
 }
 
-// Æô¶¯Ê±¼ä¸üĞÂ
+// å¼€å§‹æ—¶é—´æ›´æ–°
 void TimeManager::startUpdating() {
-    // Æô¶¯¶¨Ê±Æ÷£¬³ÖĞø¸üĞÂÓÎÏ·Ê±¼ä
     auto scheduler = Director::getInstance()->getScheduler();
 
-    // Ê¹ÓÃµ÷¶ÈÆ÷µÄ schedule ·½·¨
-    scheduler->schedule([this](float deltaTime) {
-        update(1);  // Ã¿Ãë¸üĞÂÊ±¼ä£¬ÏÖÊµÊÀ½çÃ¿ÃëµÈÓÚÓÎÏ·ÖĞ1Ğ¡Ê±
-        }, this, 1.0f, false, "timeUpdateKey");
+    scheduler->schedule([this](float /*deltaTime*/) {
+        // è¿™é‡Œç®€å•åœ°å°† 1 çœ‹ä½œä¸€ä¸ªæ—¶é—´æ­¥é•¿ï¼Œå¯ä»¥æ ¹æ®éœ€è¦è°ƒæ•´
+        update(1);
+    }, this, 1.0f, false, "timeUpdateKey");
 }
 
-// Í£Ö¹Ê±¼ä¸üĞÂ
+// åœæ­¢æ—¶é—´æ›´æ–°
 void TimeManager::stopUpdating() {
-    // Í£Ö¹Ê±¼ä¸üĞÂ
     auto scheduler = Director::getInstance()->getScheduler();
-    scheduler->unschedule("_timeUpdateKey", this);
+    scheduler->unschedule("timeUpdateKey", this);
 }
 
-// ¸üĞÂÊ±¼ä£¨Ğ¡Ê±¡¢·ÖÖÓ¡¢ÌìÊı, ÌìÆø£©
+// è®¡ç®—å½“å‰å°æ—¶/åˆ†é’Ÿ/å¤©æ•°
 void TimeManager::updateTime() {
-    // Í¨¹ı¼ÆËã¸üĞÂĞ¡Ê±¡¢·ÖÖÓ¡¢ÌìÊı¡¢¼¾½ÚµÈĞÅÏ¢
-    _hour = _timeInSeconds % HOURS_IN_A_DAY;  // Ã¿24Ğ¡Ê±Îª1Ìì
-    _day = (_timeInSeconds / HOURS_IN_A_DAY) + 1;  // Ã¿86400ÃëÎª1Ìì
-    _minute = 0;  // Ã¿60ÃëÎª1·ÖÖÓ
+    _hour = _timeInSeconds % HOURS_IN_A_DAY;
+    _day = (_timeInSeconds / HOURS_IN_A_DAY) + 1;
+    _minute = 0;
 
-    // ÅĞ¶Ïµ±Ç°ÊÇ°×Ìì»¹ÊÇºÚÒ¹
-    _isDay = (_hour >= DAY_START && _hour < DAY_END); // ¼ÙÉè°×ÌìÊÇÔçÉÏ6µãµ½ÍíÉÏ6µã
+    // åŒæ­¥æ›´æ–°æ˜¼å¤œçŠ¶æ€
+    _isDay = (_hour >= DAY_START && _hour < DAY_END);
 
-    if (_hour == 0 && _minute == 0) {  
+    // æ¯å¤©å‡Œæ™¨æ›´æ–°å¤©æ°”
+    if (_hour == 0 && _minute == 0) {
         updateWeather();
     }
 }
 
-
-// ¸üĞÂ¼¾½Ú
+// æ›´æ–°å­£èŠ‚
 void TimeManager::updateSeason() {
-    // Ã¿7ÌìÊÇÒ»¸ö¼¾½Ú±ä»¯ 
-    _season = static_cast<Season>((_day - 1) / DAYS_IN_A_SEASON % 4);  // 4¼¾½ÚÑ­»·£º0 Spring, 1 Summer, 2 Fall, 3 Winter
+    // æ¯ DAYS_IN_A_SEASON å¤©å˜æ¢ä¸€æ¬¡å­£èŠ‚
+    _season = static_cast<Season>((_day - 1) / DAYS_IN_A_SEASON % 4);
 }
 
-// ¸üĞÂÌìÆø
+// éšæœºæ›´æ–°å¤©æ°”
 void TimeManager::updateWeather() {
     int weather = rand() % 100 + 1;
     if (weather < SUNNY_PROBABILITY * 100) {
         _weather = Sunny;
     }
-    else if (weather < (RAINY_PROBABILITY+SUNNY_PROBABILITY) * 100) {
+    else if (weather < (RAINY_PROBABILITY + SUNNY_PROBABILITY) * 100) {
         _weather = Rainy;
     }
     else if (weather < (DRY_PROBABILITY + RAINY_PROBABILITY + SUNNY_PROBABILITY) * 100) {
@@ -160,4 +178,44 @@ void TimeManager::updateWeather() {
     }
 }
 
+// Observer æ³¨å†Œ
+void TimeManager::attach(TimeObserver* observer) {
+    if (!observer) return;
+    auto it = std::find(_observers.begin(), _observers.end(), observer);
+    if (it == _observers.end()) {
+        _observers.push_back(observer);
+    }
+}
 
+// Observer æ³¨é”€
+void TimeManager::detach(TimeObserver* observer) {
+    if (!observer) return;
+    _observers.erase(std::remove(_observers.begin(), _observers.end(), observer), _observers.end());
+}
+
+// é€šçŸ¥å¤©æ•°å˜åŒ–
+void TimeManager::notifyDayChanged(int day) {
+    for (auto* observer : _observers) {
+        if (observer) {
+            observer->onDayChanged(day);
+        }
+    }
+}
+
+// é€šçŸ¥å­£èŠ‚å˜åŒ–
+void TimeManager::notifySeasonChanged(Season season) {
+    for (auto* observer : _observers) {
+        if (observer) {
+            observer->onSeasonChanged(season);
+        }
+    }
+}
+
+// é€šçŸ¥æ—¶é—´å˜åŒ–
+void TimeManager::notifyTimeChanged(int hour, int minute) {
+    for (auto* observer : _observers) {
+        if (observer) {
+            observer->onTimeChanged(hour, minute);
+        }
+    }
+}

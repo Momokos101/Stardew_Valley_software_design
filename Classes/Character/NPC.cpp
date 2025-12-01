@@ -388,3 +388,19 @@ void NPC::onKeyPressed(EventKeyboard::KeyCode keyCode, Event* event) {
 void NPC::setIsProcessing(bool isProcessing) {
     _isProcessing = isProcessing;
 }
+
+// TimeObserver: 新的一天（当前示意实现，可扩展每日行为）
+void NPC::onDayChanged(int /*day*/) {
+    // 例如：每天清理一次处理状态，避免键盘交互锁死
+    _isProcessing = false;
+}
+
+// TimeObserver: 季节变化（当前未使用，可根据需求扩展）
+void NPC::onSeasonChanged(Season /*season*/) {
+    // 可以在这里根据季节调整对话或位置
+}
+
+// TimeObserver: 时间变化（当前未使用，可根据需求扩展）
+void NPC::onTimeChanged(int /*hour*/, int /*minute*/) {
+    // 可用于根据时间段改变 NPC 行为
+}

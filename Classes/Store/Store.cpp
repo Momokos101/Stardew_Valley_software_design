@@ -1,35 +1,60 @@
 /****************************************************************
  * Project Name:  Stardew_Valley
  * File Name:     Store.cpp
- * File Function: ÉÌµêStoreÀàµÄÊµÏÖ
- * Author:        Òü³Ï³É
- * Update Date:   2024/12/20
+ * File Function: å•†åº— Store ç±»å®ç°ï¼ˆé›†æˆ Observer + Strategy æ¨¡å¼ï¼‰
+ * Author:        å°¹è¯šæˆ + AI-Assistant
+ * Update Date:   2024/12/22
  * License:       MIT License
  ****************************************************************/
 
 #include "Store.h"
+#include "Store/Strategy/SeasonalPricingStrategy.h"
+#include "Store/Strategy/WeatherPricingStrategy.h"
+#include "Store/Strategy/AffectionPricingStrategy.h"
 
-// »ñÈ¡µ¥Àı
+// è·å–å•ä¾‹
 Store* Store::getInstance() {
 	static Store instance;
 	return &instance;
 }
 
- // ¹¹Ôìº¯Êı
-Store::Store() :
-	productKindCount(PRODUCE_KIND_NUM_EACH_DAY)
-{
-	_character = Character::getInstance();
+// æ„é€ å‡½æ•°
+Store::Store()
+	: _character(Character::getInstance()),
+	  _timeManager(TimeManager::getInstance()),
+	  productKindCount(PRODUCE_KIND_NUM_EACH_DAY) {
+
 	_product.clear();
+
+	// æ³¨å†Œåˆ°æ—¶é—´ç®¡ç†å™¨ï¼Œä½œä¸ºè§‚å¯Ÿè€…
+	if (_timeManager) {
+		_timeManager->attach(this);
+	}
+
+	// åˆå§‹åŒ–ä»·æ ¼ç­–ç•¥
+	_pricingStrategies.push_back(new SeasonalPricingStrategy());
+	_pricingStrategies.push_back(new WeatherPricingStrategy());
+	_pricingStrategies.push_back(new AffectionPricingStrategy());
 }
 
-// ĞÂµÄÒ»ÌìË¢ĞÂÉÌµê»õÎï
+// ææ„å‡½æ•°
+Store::~Store() {
+	if (_timeManager) {
+		_timeManager->detach(this);
+	}
+	for (auto* strategy : _pricingStrategies) {
+		delete strategy;
+	}
+	_pricingStrategies.clear();
+}
+
+// æ–°çš„ä¸€å¤©åˆ·æ–°å•†åº—è´§ç‰©
 void Store::refreshStock() {
 	_product.clear();
-	int seedProductKind = rand() % PRODUCE_KIND_NUM_EACH_DAY+1;	//ÖÁÉÙÓĞÒ»¸öÖÖ×Ó
+	int seedProductKind = rand() % PRODUCE_KIND_NUM_EACH_DAY + 1;	// éšæœºç§å­ç±»å•†å“ç§ç±»æ•°
 	int baseProductKind = PRODUCE_KIND_NUM_EACH_DAY - seedProductKind;
-	
-	// Ëæ»úÑ¡È¡ºóÒªÅĞ¶ÏÊÇ·ñÄÜ¹ºÂòÒÔ¼°½ÇÉ«¼¼ÄÜµÈ¼¶ÊÇ·ñÄÜ½âËø
+
+	// ç”Ÿæˆç§å­ç±»å•†å“ï¼ˆæ ¹æ®ç©å®¶æŠ€èƒ½ç­‰çº§ç­›é€‰ï¼‰
 	for (int i = 0; i < seedProductKind; i++) {
 		int seedIndex = INVAVID_NUM;
 		do {
@@ -39,50 +64,68 @@ void Store::refreshStock() {
 		int productCount = rand() % MAX_PRODUCT_COUNT_EACH_DAY + 1;
 		std::shared_ptr<GameObject> targetObjectPtr = std::make_shared<GameSeedObject>(GAME_SEED_OBJECTS_ATTRS[seedIndex]);
 		GameCommonObject commonObject(GameObjectMapType::Seed, targetObjectPtr);
-		_product.push_back(ProductNode{ commonObject , productCount, productCount * GAME_SEED_OBJECTS_ATTRS[seedIndex]._buyPrice,GAME_SEED_OBJECTS_ATTRS[seedIndex]._season,static_cast<Season>((GAME_SEED_OBJECTS_ATTRS[seedIndex]._season+2)%4) });
+		_product.push_back(ProductNode{ commonObject,
+										productCount,
+										productCount * GAME_SEED_OBJECTS_ATTRS[seedIndex]._buyPrice,
+										GAME_SEED_OBJECTS_ATTRS[seedIndex]._season,
+										static_cast<Season>((GAME_SEED_OBJECTS_ATTRS[seedIndex]._season + 2) % 4) });
 	}
 
+	// ç”ŸæˆåŸºç¡€ç±»å•†å“
 	for (int i = seedProductKind; i < productKindCount; i++) {
 		int baseIndex = INVAVID_NUM;
 		do {
 			baseIndex = rand() % GAME_BASE_OBJECTS_ATTRS.size();
-		} while (!(GAME_BASE_OBJECTS_ATTRS[baseIndex]._buy 
+		} while (!(GAME_BASE_OBJECTS_ATTRS[baseIndex]._buy
 			&& (_character->getSkillLevel(GAME_BASE_OBJECTS_ATTRS[baseIndex]._type) >= GAME_BASE_OBJECTS_ATTRS[baseIndex]._level)));
+
 		int productCount = rand() % MAX_PRODUCT_COUNT_EACH_DAY + 1;
 		std::shared_ptr<GameObject> targetObjectPtr = std::make_shared<GameBaseObject>(GAME_BASE_OBJECTS_ATTRS[baseIndex]);
 		GameCommonObject commonObject(GameObjectMapType::Base, targetObjectPtr);
 
 		GameSeedObject seedObject;
 		if (canHarvestFromAnySeed(GAME_BASE_OBJECTS_ATTRS[baseIndex], seedObject)) {
-			_product.push_back(ProductNode{ commonObject , productCount, productCount * GAME_BASE_OBJECTS_ATTRS[baseIndex]._buyPrice, seedObject._season,static_cast<Season>((seedObject._season+2)%4) });
+			_product.push_back(ProductNode{ commonObject,
+											productCount,
+											productCount * GAME_BASE_OBJECTS_ATTRS[baseIndex]._buyPrice,
+											seedObject._season,
+											static_cast<Season>((seedObject._season + 2) % 4) });
 		}
 		else {
-			_product.push_back(ProductNode{ commonObject , productCount, productCount * GAME_BASE_OBJECTS_ATTRS[baseIndex]._buyPrice ,All ,All });
-	    }
+			_product.push_back(ProductNode{ commonObject,
+											productCount,
+											productCount * GAME_BASE_OBJECTS_ATTRS[baseIndex]._buyPrice,
+											Season::All,
+											Season::All });
+		}
 	}
-	// ¸ù¾İ¼¾½Ú¸üĞÂ¼Û¸ñ
+
+	// æŒ‰ç­–ç•¥æ›´æ–°ä»·æ ¼
 	updatePrices();
 }
 
-// ¹ºÂòÉÌÆ·
-bool Store::buyProduct(int index) {  
+// è´­ä¹°å•†å“
+bool Store::buyProduct(int index) {
 	int characterMoney = _character->getMoney();
+	if (index < 0 || index >= static_cast<int>(_product.size())) {
+		return false;
+	}
 	if (characterMoney < _product[index].totalPrice) {
 		return false;
 	}
 	else if (_product[index].product.type == None) {
 		return false;
 	}
-	
+
 	if (_character->pickUpObject(_product[index].product, _product[index].count) == true) {
 		_character->setMoney(_product[index].totalPrice * -1);
-		_product[index] = { {  None,nullptr}, 0, 0, Season::All, Season::All };
+		_product[index] = { { None, nullptr }, 0, 0, Season::All, Season::All };
 		return true;
 	}
 	return false;
 }
 
-// ³öÊÛÉÌÆ·
+// å‡ºå”®å•†å“
 bool Store::sellProduct(const GameCommonObject targetObject, int objectCount) {
 	int salePrice = 0;
 	if (targetObject.type == Tool) {
@@ -90,69 +133,87 @@ bool Store::sellProduct(const GameCommonObject targetObject, int objectCount) {
 	}
 	else if (targetObject.type == Seed) {
 		GameSeedObject* seedObject = dynamic_cast<GameSeedObject*>(_character->getCurrentObject().objectNode.object.get());
+		if (!seedObject) return false;
 		salePrice = seedObject->_sellPrice;
 	}
 	else if (targetObject.type == Base) {
 		GameBaseObject* baseObject = dynamic_cast<GameBaseObject*>(_character->getCurrentObject().objectNode.object.get());
-		if (baseObject->_sell == false) {
+		if (!baseObject || baseObject->_sell == false) {
 			return false;
 		}
 		salePrice = baseObject->_sellPrice;
 	}
 	_character->deleteCurrentObject();
-	_character->setMoney(objectCount*salePrice);
-	_sellProductCallback(true);
+	_character->setMoney(objectCount * salePrice);
+	if (_sellProductCallback) {
+		_sellProductCallback(true);
+	}
 	return true;
 }
 
-// ²éÕÒÖ¸¶¨Î»ÖÃµÄÉÌÆ·ĞÅÏ¢
+// æŸ¥æ‰¾æŒ‡å®šä½ç½®çš„å•†å“ä¿¡æ¯
 ProductNode Store::findObjectAtPosition(int index) {
-	if (index < 0 || index >= _product.size()) {
+	if (index < 0 || index >= static_cast<int>(_product.size())) {
 		return ProductNode();
 	}
 
 	return _product[index];
 }
 
-// »Øµ÷º¯Êı
+// è®¾ç½®å‡ºå”®å›è°ƒ
 void Store::setSellProductCallback(std::function<void(bool)> callback) {
 	_sellProductCallback = callback;
 }
 
-// ¸üĞÂ¼Û¸ñ
+// ä½¿ç”¨ç­–ç•¥æ›´æ–°ä»·æ ¼
 void Store::updatePrices() {
-	_timeManager = TimeManager::getInstance();
+	if (!_timeManager) {
+		_timeManager = TimeManager::getInstance();
+	}
+	if (!_timeManager) return;
 
-	// ¸ù¾İ¼¾½Ú¸üĞÂ¼Û¸ñ
-	const int season = _timeManager->getCurrentSeason();
-	for (int i = 0; i < _product.size(); i++) {
-		// ÎïÆ·´æÔÚ¼Û¸ñ¸¡¶¯
-		if (_product[i].discountSeason != Season::All) {
-			if (_product[i].discountSeason == season) {	// ´òÕÛ
-				_product[i].totalPrice *= DISCOUNT_RATE_BY_SEASON;
-			}
-			else if (_product[i].increaseSeason == season) {// ÕÇ¼Û
-				_product[i].totalPrice *= INCREASE_RATE_BY_SEASON;
+	for (auto& product : _product) {
+		for (auto* strategy : _pricingStrategies) {
+			if (strategy) {
+				strategy->apply(product, *_timeManager);
 			}
 		}
 	}
 
-	// ¸ù¾İÈÕÆÚ¸üĞÂ¼Û¸ñ
+	// ä¿ç•™åŸæœ‰çš„æ˜ŸæœŸå››ç»Ÿä¸€æŠ˜æ‰£é€»è¾‘
 	std::string weekDay = _timeManager->getWeekDay();
 	if (weekDay == "Thursday") {
-		for (int i = 0; i < _product.size(); i++) {
-			_product[i].totalPrice *= DISCOUNT_RATE_BY_SEASON;
+		for (auto& product : _product) {
+			product.totalPrice = static_cast<int>(product.totalPrice * DISCOUNT_RATE_BY_SEASON);
 		}
 	}
 }
 
-// ÅĞ¶ÏÎïÆ·ÊÇ·ñÊÇÖÖ×ÓµÄÊÕ»ñÎï
-bool Store::canHarvestFromAnySeed(const GameBaseObject& baseObject,  GameSeedObject& seedObject) {
-	for (const auto seed : GAME_SEED_OBJECTS_ATTRS) { // Ê¹ÓÃ³£Á¿ÒıÓÃ±éÀú
+// åˆ¤æ–­å•†å“æ˜¯å¦ä¸ºæŸç§ç§å­çš„æ”¶è·ç‰©
+bool Store::canHarvestFromAnySeed(const GameBaseObject& baseObject, GameSeedObject& seedObject) {
+	for (const auto& seed : GAME_SEED_OBJECTS_ATTRS) {
 		if (baseObject._index == seed._harvestIndex) {
 			seedObject = seed;
 			return true;
 		}
 	}
-	return false; // Èç¹ûÃ»ÓĞÕÒµ½
+	return false;
 }
+
+// TimeObserver: æ–°çš„ä¸€å¤©
+void Store::onDayChanged(int /*day*/) {
+	// æ–°çš„ä¸€å¤©åˆ·æ–°è´§ç‰©ï¼Œå¹¶é‡æ–°è®¡ç®—ä»·æ ¼
+	refreshStock();
+}
+
+// TimeObserver: å­£èŠ‚å˜åŒ–
+void Store::onSeasonChanged(Season /*season*/) {
+	// ä»…é‡æ–°è®¡ç®—ä»·æ ¼
+	updatePrices();
+}
+
+// TimeObserver: æ—¶é—´å˜åŒ–ï¼ˆå½“å‰æœªä½¿ç”¨ï¼Œå¯æ ¹æ®éœ€æ±‚æ‰©å±•ï¼‰
+void Store::onTimeChanged(int /*hour*/, int /*minute*/) {
+	// æš‚ä¸æ ¹æ®å°æ—¶/åˆ†é’ŸåŠ¨æ€è°ƒæ•´ä»·æ ¼
+}
+

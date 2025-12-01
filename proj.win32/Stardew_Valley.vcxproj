@@ -194,6 +194,9 @@ xcopy "$(ProjectDir)..\Resources" "$(OutDir)\Resources\" /D /E /I /F /Y
     <ClCompile Include="..\Classes\Scene\GameMainScene.cpp" />
     <ClCompile Include="..\Classes\Scene\GameStartScene.cpp" />
     <ClCompile Include="..\Classes\Store\Store.cpp" />
+    <ClCompile Include="..\Classes\Store\Strategy\SeasonalPricingStrategy.cpp" />
+    <ClCompile Include="..\Classes\Store\Strategy\WeatherPricingStrategy.cpp" />
+    <ClCompile Include="..\Classes\Store\Strategy\AffectionPricingStrategy.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>

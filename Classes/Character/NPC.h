@@ -18,13 +18,14 @@
 #include "Control/GiftItemManager.h"
 #include "ui/CocosGUI.h"
 #include "Layer/ChatLayer.h"
-#include"CharacterInfo.h"
+#include "CharacterInfo.h"
 #include <vector>
 #include <string>
-#include"Character.h"
-#include"Box/Box.h"
+#include "Character.h"
+#include "Box/Box.h"
+#include "Control/Observer/TimeObserver.h"
 
-class NPC : public cocos2d::Node {
+class NPC : public cocos2d::Node, public TimeObserver {
 public: 
     std::string _name;                    // NPC 的名字
     int _affection;                       // 好感度，范围 0 - 100
@@ -92,6 +93,11 @@ public:
 
     //修改任务处理状态
     void setIsProcessing(bool isProcessing);
+
+    // TimeObserver 接口实现：可根据需要在 cpp 中扩展行为
+    void onDayChanged(int day) override;
+    void onSeasonChanged(Season season) override;
+    void onTimeChanged(int hour, int minute) override;
 
     };
 

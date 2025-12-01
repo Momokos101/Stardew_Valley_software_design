@@ -13,6 +13,7 @@
 #include "cocos2d.h"
 #include "proj.win32/Constant.h"
 
+class CropState;
 
 class Crops : public cocos2d::Node {
 public:
@@ -80,6 +81,14 @@ public:
     CropData getCropData();
     //移除农作物
     void removeCrop();
+
+    // （状态模式）根据当前生长阶段更新内部状态对象
+    void updateStateByGrowthStage();
+
+    // （状态模式）设置当前状态对象（供状态类内部调用）
+    void setState(CropState* state);
+
+    ~Crops();
 private:
     bool _isFertilized;         // 是否施肥
     std::string _type;          // 农作物类型
@@ -93,6 +102,9 @@ private:
     cocos2d::Sprite* _sprite;   // 农作物的显示精灵
     float _wiltTime=0.0f;            //农作物枯萎时间
     CropData _cropData;         // 农作物数据
+
+    // 当前状态对象（State 模式）
+    CropState* _state = nullptr;
 
     // 静态变量：当前季节
     static Season _currentSeason;

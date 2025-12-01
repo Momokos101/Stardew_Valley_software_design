@@ -1,28 +1,33 @@
 /****************************************************************
  * Project Name:  Stardew_Valley
  * File Name:     Crops.h
- * File Function: Å©×÷ÎïÀà£¬ÊµÏÖÅ©×÷ÎïµÄ¸÷ÖÖ»ù±¾²Ù×÷
- * Author:        ºú±¦âù
+ * File Function: Å©ï¿½ï¿½ï¿½ï¿½ï¿½à£¬Êµï¿½ï¿½Å©ï¿½ï¿½ï¿½ï¿½Ä¸ï¿½ï¿½Ö»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+ * Author:        ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
  * Update Date:   2024/12/22
  * License:       MIT License
  ****************************************************************/
 #include "Crops.h"
 #include "Classes/Control/TimeManager.h"
+#include "Crops/State/CropState.h"
+#include "Crops/State/SeedState.h"
+#include "Crops/State/SproutingState.h"
+#include "Crops/State/GrowingState.h"
+#include "Crops/State/MatureState.h"
 
 USING_NS_CC;
-// ³õÊ¼»¯¾²Ì¬±äÁ¿
+// ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½Ì¬ï¿½ï¿½ï¿½ï¿½
 Season Crops::_currentSeason = Season::Spring;
-int Crops::_playerLevel = 1; // ³õÊ¼ÈËÎïµÈ¼¶Îª1
+int Crops::_playerLevel = 1; // ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½È¼ï¿½Îª1
 
-// ¶¨Òå¾²Ì¬×ÊÔ´Ó³Éä±í
+// ï¿½ï¿½ï¿½å¾²Ì¬ï¿½ï¿½Ô´Ó³ï¿½ï¿½ï¿½
 std::unordered_map<std::string, std::vector<std::string>> Crops::_resourceMap;
 
 void Crops::initializeResourceMap() {
-    // Èç¹û×ÊÔ´±íÒÑ¾­³õÊ¼»¯£¬ÔòÌø¹ı
+    // ï¿½ï¿½ï¿½ï¿½ï¿½Ô´ï¿½ï¿½ï¿½Ñ¾ï¿½ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     if (!_resourceMap.empty()) return;
 
-    // ÎªÃ¿ÖÖÅ©×÷ÎïÀàĞÍÌí¼Ó¶ÔÓ¦µÄÍ¼Æ¬×ÊÔ´Â·¾¶
-    //»¨Ò¬²Ë
+    // ÎªÃ¿ï¿½ï¿½Å©ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ó¶ï¿½Ó¦ï¿½ï¿½Í¼Æ¬ï¿½ï¿½Ô´Â·ï¿½ï¿½
+    //ï¿½ï¿½Ò¬ï¿½ï¿½
     _resourceMap["cauliflower"] = {
         "../Resources/Crops/Cauliflower/cauliflower_0.png",
         "../Resources/Crops/Cauliflower/cauliflower_1.png",
@@ -31,7 +36,7 @@ void Crops::initializeResourceMap() {
          "../Resources/Crops/Cauliflower/cauliflower_4.png"
     };
 
-    //¸ÊÀ¶²Ë
+    //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     _resourceMap["kale"] = {
        "../Resources/Crops/Kale/kale_0.png",
        "../Resources/Crops/Kale/kale_1.png",
@@ -40,7 +45,7 @@ void Crops::initializeResourceMap() {
        "../Resources/Crops/Kale/kale_4.png"
     };
 
-    //ÄÏ¹Ï
+    //ï¿½Ï¹ï¿½
     _resourceMap["pumpkin"] = {
    "../Resources/Crops/Pumpkin/pumpkin_0.png",
     "../Resources/Crops/Pumpkin/pumpkin_1.png",
@@ -49,7 +54,7 @@ void Crops::initializeResourceMap() {
     "../Resources/Crops/Pumpkin/pumpkin_4.png",
     "../Resources/Crops/Pumpkin/pumpkin_5.png"
     };
-    //ÏğÊ÷
+    //ï¿½ï¿½ï¿½ï¿½
     _resourceMap["oak"] = {
    "../Resources/Crops/Oak/oak_0.png",
     "../Resources/Crops/Oak/oak_1.png",
@@ -57,7 +62,7 @@ void Crops::initializeResourceMap() {
     "../Resources/Crops/Oak/oak_3.png"
     };
 
-    //·ãÊ÷
+    //ï¿½ï¿½ï¿½ï¿½
     _resourceMap["maple"] = {
    "../Resources/Crops/Maple/maple_0.png",
     "../Resources/Crops/Maple/maple_1.png",
@@ -65,7 +70,7 @@ void Crops::initializeResourceMap() {
     "../Resources/Crops/Maple/maple_3.png"
     };
 
-    //ËÉÊ÷
+    //ï¿½ï¿½ï¿½ï¿½
     _resourceMap["pine"] = {
    "../Resources/Crops/Pine/pine_0.png",
     "../Resources/Crops/Pine/pine_1.png",
@@ -73,7 +78,7 @@ void Crops::initializeResourceMap() {
     "../Resources/Crops/Pine/pine_3.png"
     };
 
-    //ÆÕÍ¨²İ
+    //ï¿½ï¿½Í¨ï¿½ï¿½
     _resourceMap["grass"] = {
         "../Resources/Crops/grass.png"
     };
@@ -82,12 +87,12 @@ void Crops::initializeResourceMap() {
     _resourceMap["stone"] = {
         "../Resources/Crops/stone.png"
     };
-    //²İ2
+    //ï¿½ï¿½2
     _resourceMap["grass_2"] = {
         "../Resources/Crops/grass_2.png"
     };
 
-    //¿İÎ®
+    //ï¿½ï¿½Î®
     _resourceMap["wilt"] = {
        "../Resources/Crops/wilt/wilt_0.png"
     };
@@ -100,7 +105,7 @@ void Crops::initializeResourceMap() {
 
 }
 
-// Å©×÷ÎïµÄÉú³¤ÖÜÆÚ±í£¨²»Í¬¼¾½Ú²»Í¬ÖÜÆÚ£©
+// Å©ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ú±ï¿½ï¿½ï¿½ï¿½ï¿½Í¬ï¿½ï¿½ï¿½Ú²ï¿½Í¬ï¿½ï¿½ï¿½Ú£ï¿½
 std::unordered_map<std::string, std::unordered_map<Season, float>> Crops::_growthCycles = {
     {"cauliflower", {{Season::Spring, 50.0f}, {Season::Summer, 50.0f}, {Season::Fall, 60.0f}, {Season::Winter,72.0f}}},
     {"kale", {{Season::Spring, 30.0f}, {Season::Summer, 30.0f}, {Season::Fall, 40.0f}, {Season::Winter, 50.0f}}},
@@ -111,7 +116,7 @@ std::unordered_map<std::string, std::unordered_map<Season, float>> Crops::_growt
 
 };
 
-// Ê÷³ÉÊì½×¶ÎÍ¼Æ¬£¨²»Í¬¼¾½ÚµÄÌùÍ¼£©
+// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×¶ï¿½Í¼Æ¬ï¿½ï¿½ï¿½ï¿½Í¬ï¿½ï¿½ï¿½Úµï¿½ï¿½ï¿½Í¼ï¿½ï¿½
 std::unordered_map<std::string, std::unordered_map<Season, std::string>> Crops::_matureTextures = {
     {"oak", {{Season::Spring, "../Resources/Crops/Oak/oak_spring.png"},
                      {Season::Summer, "../Resources/Crops/Oak/oak_summer.png"},
@@ -146,6 +151,13 @@ std::unordered_map<std::string, std::unordered_map<Season, std::string>> Crops::
      }
 };
 
+Crops::~Crops() {
+    if (_state) {
+        delete _state;
+        _state = nullptr;
+    }
+}
+
 CropData Crops::getCropData() {
     _cropData.Harvest = _type;
     _cropData.type = _type;
@@ -163,13 +175,13 @@ CropData Crops::getCropData() {
     return _cropData;
 }
 
-//ÉèÖÃµ±Ç°µÄÈËÎïµÈ¼¶
+//ï¿½ï¿½ï¿½Ãµï¿½Ç°ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È¼ï¿½
 void Crops::setPlayerLevel(int level) {
     _playerLevel = level;
     CCLOG("Player level set to: %d", _playerLevel);
 }
 
-//ÓÉÈËÎïµÈ¼¶ÅĞ¶ÏÊÇ·ñÄÜÖÖÖ²µ±ÏÂÅ©×÷Îï
+//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È¼ï¿½ï¿½Ğ¶ï¿½ï¿½Ç·ï¿½ï¿½ï¿½ï¿½ï¿½Ö²ï¿½ï¿½ï¿½ï¿½Å©ï¿½ï¿½ï¿½ï¿½
 bool Crops::canBePlanted(const std::string& cropType){
     if (cropType == "pumpkin" && _playerLevel < 3) {
         CCLOG("Error: Player level too low to plant pumpkin! Required level: 3");
@@ -181,7 +193,7 @@ bool Crops::canBePlanted(const std::string& cropType){
 
 Crops* Crops::create(const std::string& type, int maxGrowthStage) {
 
-    // ÔÚ´´½¨Ö®Ç°ÏÈ¼ì²éÄÜ·ñÖÖÖ²
+    // ï¿½Ú´ï¿½ï¿½ï¿½Ö®Ç°ï¿½È¼ï¿½ï¿½ï¿½Ü·ï¿½ï¿½ï¿½Ö²
     if (!canBePlanted(type)) {
         CCLOG("Cannot plant this crop due to insufficient player level.");
         return nullptr;
@@ -198,12 +210,12 @@ Crops* Crops::create(const std::string& type, int maxGrowthStage) {
     return nullptr;
 }
 
-// Ê©·Êº¯Êı£º¸Ä±äisFertilizedÎªtrue£¬ÌáÉıÉú³¤ËÙ¶È
+// Ê©ï¿½Êºï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä±ï¿½isFertilizedÎªtrueï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ù¶ï¿½
 void Crops::fertilize() {
     _isFertilized = true;
 }
 
-//³õÊ¼»¯Å©×÷ÎïĞÅÏ¢
+//ï¿½ï¿½Ê¼ï¿½ï¿½Å©ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï¢
 bool Crops::init(const std::string& type, int maxGrowthStage) {
     CCLOG("Initializing Crop...");
     if (!Node::init()) {
@@ -211,7 +223,7 @@ bool Crops::init(const std::string& type, int maxGrowthStage) {
         return false;
     }
 
-    // ³õÊ¼»¯×ÊÔ´±í£¨½öÊ×´Îµ÷ÓÃÊ±»áÖ´ĞĞ£©
+    // ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½Ô´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×´Îµï¿½ï¿½ï¿½Ê±ï¿½ï¿½Ö´ï¿½Ğ£ï¿½
     initializeResourceMap();
 
     this->_type = type;
@@ -221,9 +233,9 @@ bool Crops::init(const std::string& type, int maxGrowthStage) {
     this->_isWatered = false;
     this->_daysWithoutWater = 0;
     this->_isFertilized = 0;
-    this->_hasPests = false;    // ³õÊ¼ÎŞ²¡³æº¦
-    this->_pestProbability = 0.05f; // ¸ĞÈ¾¸ÅÂÊ 5%
-    // ³õÊ¼»¯Å©×÷ÎïµÄ¾«Áé
+    this->_hasPests = false;    // ï¿½ï¿½Ê¼ï¿½Ş²ï¿½ï¿½æº¦
+    this->_pestProbability = 0.05f; // ï¿½ï¿½È¾ï¿½ï¿½ï¿½ï¿½ 5%
+    // ï¿½ï¿½Ê¼ï¿½ï¿½Å©ï¿½ï¿½ï¿½ï¿½Ä¾ï¿½ï¿½ï¿½
     _sprite = Sprite::create(_resourceMap[type][0]);
     if (_sprite == nullptr) {
         CCLOG("Error: Failed to load sprite for type: %s", type.c_str());
@@ -231,7 +243,7 @@ bool Crops::init(const std::string& type, int maxGrowthStage) {
     }
 
     _sprite->setScale(CROP_START_RATIO);
-    // ÉèÖÃÃªµã£¨ÀıÈçÉèÖÃµ½µ×²¿ÖĞĞÄµã£©
+    // ï¿½ï¿½ï¿½ï¿½Ãªï¿½ã£¨ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ãµï¿½ï¿½×²ï¿½ï¿½ï¿½ï¿½Äµã£©
     if (_type == "maple" || _type == "pine" || _type == "oak") {
         _sprite->setAnchorPoint(Vec2(CROP_HORIZONTAL_ANCHORPOINT, TREE_VERTICAL_ANCHORPOINT));
     }
@@ -240,6 +252,10 @@ bool Crops::init(const std::string& type, int maxGrowthStage) {
     }
 
     this->addChild(_sprite);
+
+    // åˆå§‹åŒ–çŠ¶æ€å¯¹è±¡
+    updateStateByGrowthStage();
+
     CCLOG("Crop initialized successfully");
     this->schedule([this](float dt) {
         this->updateGrowth(dt);
@@ -247,14 +263,14 @@ bool Crops::init(const std::string& type, int maxGrowthStage) {
     return true;
 }
 
-// ¸ù¾İÌìÆø¹ÜÀí¸ÉºµÇé¿ö£¬ÅĞ¶ÏÊÇ·ñĞèÒª½½Ë®
+// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Éºï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ğ¶ï¿½ï¿½Ç·ï¿½ï¿½ï¿½Òªï¿½ï¿½Ë®
 void Crops::manageDrought(Weather currentWeather) {
-    // ¼ì²éÊÇ·ñ¿İÎ®
+    // ï¿½ï¿½ï¿½ï¿½Ç·ï¿½ï¿½Î®
     if (!_isWatered) {
         _daysWithoutWater++;
-        // Ö»´¦Àí¸ÉºµºÍÇçÌì£¬ÓêÌì²»ĞèÒª½½Ë®
+        // Ö»ï¿½ï¿½ï¿½ï¿½ï¿½Éºï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ì£¬ï¿½ï¿½ï¿½ì²»ï¿½ï¿½Òªï¿½ï¿½Ë®
         if (currentWeather == Weather::Dry) {
-            // ¸ÉºµÌìÆø£¬Ã¿Á½Ìì½½Ò»´ÎË®
+            // ï¿½Éºï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ã¿ï¿½ï¿½ï¿½ì½½Ò»ï¿½ï¿½Ë®
             if (_daysWithoutWater >= 2) {
                 if (_resourceMap.find("wilt") != _resourceMap.end()) {
                     const auto& textures = _resourceMap["wilt"];
@@ -277,7 +293,7 @@ void Crops::manageDrought(Weather currentWeather) {
         else if (currentWeather == Weather::Rainy) {
             _daysWithoutWater = 0;
         }
-        // Èç¹ûÊÇÓêÌì£¬²»×öÈÎºÎ²Ù×÷
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ì£¬ï¿½ï¿½ï¿½ï¿½ï¿½ÎºÎ²ï¿½ï¿½ï¿½
     }
     else {
         _daysWithoutWater = 0;
@@ -286,18 +302,18 @@ void Crops::manageDrought(Weather currentWeather) {
 
 
 
-//¸üĞÂÖ²ÎïµÄÉú³¤×´Ì¬
+//ï¿½ï¿½ï¿½ï¿½Ö²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×´Ì¬
 void Crops::updateGrowth(float deltaTime) {
 
     const TimeManager* timeManager = TimeManager::getInstance();
     Season currentSeason = timeManager->getCurrentSeason();
-    Crops::setSeason(currentSeason); // ÉèÖÃµ±Ç°¼¾½Ú
+    Crops::setSeason(currentSeason); // ï¿½ï¿½ï¿½Ãµï¿½Ç°ï¿½ï¿½ï¿½ï¿½
 
-    // ¼ì²éÊÇ·ñ±»²ÉÕª
+    // ï¿½ï¿½ï¿½ï¿½Ç·ñ±»²ï¿½Õª
     if (_isRemoved == true) {
         return;
     }
-    // »ñÈ¡µ±Ç°¼¾½ÚµÄÉú³¤ÖÜÆÚ
+    // ï¿½ï¿½È¡ï¿½ï¿½Ç°ï¿½ï¿½ï¿½Úµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     float growthSpeed = 5.0f;
     if (_growthCycles.find(_type) != _growthCycles.end()) {
         if (_growthCycles[_type].find(_currentSeason) != _growthCycles[_type].end()) {
@@ -305,18 +321,20 @@ void Crops::updateGrowth(float deltaTime) {
         }
     }
 
-    // Èç¹ûÊ©·Ê£¬¼ÓËÙÉú³¤
+    // ï¿½ï¿½ï¿½Ê©ï¿½Ê£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     if (_isFertilized) {
-        growthSpeed *= FERTILIZER_GROWTH_RATE; // Éú³¤ÖÜÆÚËõ¶Ì 20%
+        growthSpeed *= FERTILIZER_GROWTH_RATE; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ 20%
     }
 
-    // ÀÛ»ıÊ±¼ä£¬½øÈëÏÂÒ»¸öÉú³¤½×¶Î
+    // ï¿½Û»ï¿½Ê±ï¿½ä£¬ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×¶ï¿½
     _growthTimer += deltaTime;
     if (_growthTimer >= growthSpeed && !_hasPests) {
         _growthTimer = 0.0f;
         _growthStage = std::min(_growthStage + 1, _maxGrowthStage);
+        // æŒ‰æ–°çš„ç”Ÿé•¿é˜¶æ®µæ›´æ–°çŠ¶æ€å¯¹è±¡
+        updateStateByGrowthStage();
 
-        // Èç¹û´ïµ½³ÉÊì½×¶Î£¬¼ÓÔØ¼¾½Ú¶ÔÓ¦µÄ³ÉÊìÍ¼Æ¬
+        // ï¿½ï¿½ï¿½ï¿½ïµ½ï¿½ï¿½ï¿½ï¿½×¶Î£ï¿½ï¿½ï¿½ï¿½Ø¼ï¿½ï¿½Ú¶ï¿½Ó¦ï¿½Ä³ï¿½ï¿½ï¿½Í¼Æ¬
         if (_growthStage == _maxGrowthStage) {
             if (_matureTextures.find(_type) != _matureTextures.end()) {
                 auto seasonTexture = _matureTextures[_type][_currentSeason];
@@ -329,7 +347,7 @@ void Crops::updateGrowth(float deltaTime) {
             }
         }
         else {
-            // ¼ÌĞøÉú³¤½×¶ÎµÄÌùÍ¼¸üĞÂ
+            // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×¶Îµï¿½ï¿½ï¿½Í¼ï¿½ï¿½ï¿½ï¿½
             if (_resourceMap.find(_type) != _resourceMap.end()) {
                 const auto& textures = _resourceMap[_type];
                 if (_growthStage >= 0 && _growthStage < textures.size()) {
@@ -342,20 +360,20 @@ void Crops::updateGrowth(float deltaTime) {
         Weather currentWeather = Weather::Dry;
         currentWeather=timeManager->getCurrentWeather();
         this->manageDrought(currentWeather);
-        checkPests(); // Ã¿´Î¸üĞÂÊ±¼ì²é²¡³æº¦
-        _isWatered = false; // Ã¿´Î¸üĞÂºóÖØÖÃ½½Ë®×´Ì¬
+        checkPests(); // Ã¿ï¿½Î¸ï¿½ï¿½ï¿½Ê±ï¿½ï¿½é²¡ï¿½æº¦
+        _isWatered = false; // Ã¿ï¿½Î¸ï¿½ï¿½Âºï¿½ï¿½ï¿½ï¿½Ã½ï¿½Ë®×´Ì¬
     }
 
-    // ¼ì²é¿İÎ®Ê±¼ä
+    // ï¿½ï¿½ï¿½ï¿½Î®Ê±ï¿½ï¿½
     if (_daysWithoutWater > 0) {
         _wiltTime += deltaTime;
-        if (_wiltTime >= WILTTIME) {  // ¿İÎ®³¬¹ı4Ìì
+        if (_wiltTime >= WILTTIME) {  // ï¿½ï¿½Î®ï¿½ï¿½ï¿½ï¿½4ï¿½ï¿½
             removeCrop();
             return;
         }
     }
     else {
-        // Èç¹ûÎ´¿İÎ®£¬ÖØÖÃ¿İÎ®¼ÆÊ±
+        // ï¿½ï¿½ï¿½Î´ï¿½ï¿½Î®ï¿½ï¿½ï¿½ï¿½ï¿½Ã¿ï¿½Î®ï¿½ï¿½Ê±
         _wiltTime = 0.0f;
     }
 
@@ -367,48 +385,84 @@ void Crops::removeCrop() {
     }
 
     CCLOG("Crop '%s' is removed due to prolonged wilting!", _type.c_str());
-    this->unschedule("crop_update");  // Í£Ö¹¸üĞÂ
+    this->unschedule("crop_update");  // Í£Ö¹ï¿½ï¿½ï¿½ï¿½
     if (this->getParent()) {
         this->removeFromParent();
     }
     this->_isRemoved = true;
 }
-//¸üĞÂµ±Ç°µÄ¼¾½Ú
+
+// æ ¹æ®å½“å‰ç”Ÿé•¿é˜¶æ®µæ›´æ–°çŠ¶æ€å¯¹è±¡ï¼ˆState æ¨¡å¼æ ¸å¿ƒå…¥å£ï¼‰
+void Crops::updateStateByGrowthStage() {
+    // å·²è¢«ç§»é™¤çš„ä¸å†æ›´æ–°çŠ¶æ€
+    if (_isRemoved) return;
+
+    // æ¸…ç†æ—§çŠ¶æ€
+    if (_state) {
+        delete _state;
+        _state = nullptr;
+    }
+
+    // æ ¹æ®ç”Ÿé•¿é˜¶æ®µé€‰æ‹©çŠ¶æ€
+    if (_growthStage <= 0) {
+        _state = new SeedState();
+    }
+    else if (_growthStage == 1 && _maxGrowthStage >= 3) {
+        // åˆå§‹å‘èŠ½é˜¶æ®µ
+        _state = new SproutingState();
+    }
+    else if (_growthStage < _maxGrowthStage) {
+        _state = new GrowingState();
+    }
+    else {
+        _state = new MatureState();
+    }
+}
+
+// è®¾ç½®å½“å‰çŠ¶æ€å¯¹è±¡ï¼ˆä¾›çŠ¶æ€ç±»æˆ–å¤–éƒ¨æ‰©å±•è°ƒç”¨ï¼‰
+void Crops::setState(CropState* state) {
+    if (_state == state) return;
+    if (_state) {
+        delete _state;
+    }
+    _state = state;
+}
+//ï¿½ï¿½ï¿½Âµï¿½Ç°ï¿½Ä¼ï¿½ï¿½ï¿½
 void Crops::setSeason(Season season) {
-    if (_currentSeason != season) { // ±ÜÃâÖØ¸´´¥·¢
+    if (_currentSeason != season) { // ï¿½ï¿½ï¿½ï¿½ï¿½Ø¸ï¿½ï¿½ï¿½ï¿½ï¿½
         _currentSeason = season;
         CCLOG("Season changed to %d", static_cast<int>(season));
     }
 }
 
-//»ñÈ¡µ±Ç°µÄ¼¾½Ú
+//ï¿½ï¿½È¡ï¿½ï¿½Ç°ï¿½Ä¼ï¿½ï¿½ï¿½
 Season Crops::getSeason() {
     return _currentSeason;
 }
 
-//¼ì²éÖ²ÎïÊÇ·ñ»¼ÓĞ²¡³æº¦
+//ï¿½ï¿½ï¿½Ö²ï¿½ï¿½ï¿½Ç·ï¿½ï¿½Ğ²ï¿½ï¿½æº¦
 void Crops::checkPests() {
     if (_isRemoved == true) {
         return;
     }
-    if (!_hasPests && CCRANDOM_0_1() < _pestProbability) { // Ëæ»ú¸ÅÂÊ¸ĞÈ¾²¡³æº¦
+    if (!_hasPests && CCRANDOM_0_1() < _pestProbability) { // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¸ï¿½È¾ï¿½ï¿½ï¿½æº¦
         _hasPests = true;
         CCLOG("Crop infected with pests!");
 
-        // ¸ü¸ÄÌùÍ¼ÏÔÊ¾²¡³æº¦×´Ì¬£¨¼ÙÉèÓĞÌØ¶¨Í¼Æ¬£©
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í¼ï¿½ï¿½Ê¾ï¿½ï¿½ï¿½æº¦×´Ì¬ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ø¶ï¿½Í¼Æ¬ï¿½ï¿½
         _sprite->setTexture("../Resources/Crops/pests.png");
        
     }
 }
 
-//´¦Àí²¡³æº¦º¯Êı£¬Ê¹Ö²Îï»Ö¸´Õı³£
+//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½æº¦ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¹Ö²ï¿½ï¿½Ö¸ï¿½ï¿½ï¿½ï¿½ï¿½
 void Crops::treatPests() {
-    // ¼ì²éµ±Ç°Ö¸ÕëÊÇ·ñÎª¿ÕÖ¸Õë£¬·ÀÖ¹µ÷ÓÃÒÑÊÍ·ÅµÄ¶ÔÏó
+    // ï¿½ï¿½éµ±Ç°Ö¸ï¿½ï¿½ï¿½Ç·ï¿½Îªï¿½ï¿½Ö¸ï¿½ë£¬ï¿½ï¿½Ö¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í·ÅµÄ¶ï¿½ï¿½ï¿½
     if (_isRemoved == true) {
         return;
     }
 
-    // ¼ì²é sprite ÊÇ·ñÎª¿ÕÖ¸Õë
+    // ï¿½ï¿½ï¿½ sprite ï¿½Ç·ï¿½Îªï¿½ï¿½Ö¸ï¿½ï¿½
     if (_sprite == nullptr) {
         CCLOG("Error: Attempt to update crop with null sprite.");
         return;
@@ -417,9 +471,9 @@ void Crops::treatPests() {
         _hasPests = false;
         CCLOG("Pests removed from crop!");
 
-        // ÅĞ¶ÏÊÇ·ñ´¦ÓÚ³ÉÊì½×¶Î£¨×îºóÒ»¸öÉú³¤½×¶Î£©
+        // ï¿½Ğ¶ï¿½ï¿½Ç·ï¿½ï¿½Ú³ï¿½ï¿½ï¿½×¶Î£ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×¶Î£ï¿½
         if (_growthStage == _maxGrowthStage) {
-            // ´Ó³ÉÊìÌùÍ¼Ó³ÉäÖĞ»ñÈ¡µ±Ç°¼¾½ÚµÄÌùÍ¼
+            // ï¿½Ó³ï¿½ï¿½ï¿½ï¿½ï¿½Í¼Ó³ï¿½ï¿½ï¿½Ğ»ï¿½È¡ï¿½ï¿½Ç°ï¿½ï¿½ï¿½Úµï¿½ï¿½ï¿½Í¼
             if (_matureTextures.find(_type) != _matureTextures.end()) {
                 auto seasonTexture = _matureTextures[_type][_currentSeason];
                 if (this->_type == "maple" || this->_type == "oak" || this->_type == "pine") {
@@ -430,7 +484,7 @@ void Crops::treatPests() {
             }
         }
         else {
-            // Èç¹ûÎ´³ÉÊì£¬»Ö¸´µ½¶ÔÓ¦Éú³¤½×¶ÎµÄÕı³£ÌùÍ¼
+            // ï¿½ï¿½ï¿½Î´ï¿½ï¿½ï¿½ì£¬ï¿½Ö¸ï¿½ï¿½ï¿½ï¿½ï¿½Ó¦ï¿½ï¿½ï¿½ï¿½ï¿½×¶Îµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í¼
             if (_resourceMap.find(_type) != _resourceMap.end()) {
                 const auto& textures = _resourceMap[_type];
                 if (_growthStage >= 0 && _growthStage < textures.size()) {
@@ -442,24 +496,24 @@ void Crops::treatPests() {
     }
 }
 
-//½½Ë®¶¯»­ÒÔ¼°Ö²Îï½½Ë®×´Ì¬µÄ¸üĞÂ
+//ï¿½ï¿½Ë®ï¿½ï¿½ï¿½ï¿½ï¿½Ô¼ï¿½Ö²ï¿½ï½½Ë®×´Ì¬ï¿½Ä¸ï¿½ï¿½ï¿½
 void Crops::waterCrop() {
     _isWatered = true;
-    _daysWithoutWater = 0; // ½½Ë®ºóÖØÖÃÎ´½½Ë®ÌìÊı
-    // ´´½¨Ò»¸ö¶¯»­£¬ÓÉÎåÖ¡Í¼Æ¬×é³É
+    _daysWithoutWater = 0; // ï¿½ï¿½Ë®ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Î´ï¿½ï¿½Ë®ï¿½ï¿½ï¿½ï¿½
+    // ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö¡Í¼Æ¬ï¿½ï¿½ï¿½
     Vector<SpriteFrame*> frames;
 
-    frames.pushBack(SpriteFrame::create("../Resources/Animations/water/water_1.png", Rect(0, 0, 70, 70)));  // ¼ÙÉèÃ¿ÕÅÍ¼Æ¬µÄ´óĞ¡ÊÇ 100x100
+    frames.pushBack(SpriteFrame::create("../Resources/Animations/water/water_1.png", Rect(0, 0, 70, 70)));  // ï¿½ï¿½ï¿½ï¿½Ã¿ï¿½ï¿½Í¼Æ¬ï¿½Ä´ï¿½Ğ¡ï¿½ï¿½ 100x100
     frames.pushBack(SpriteFrame::create("../Resources/Animations/water/water_2.png", Rect(0, 0, 70, 70)));
     frames.pushBack(SpriteFrame::create("../Resources/Animations/water/water_3.png", Rect(0, 0, 70, 70)));
     frames.pushBack(SpriteFrame::create("../Resources/Animations/water/water_4.png", Rect(0, 0, 70, 70)));
     frames.pushBack(SpriteFrame::create("../Resources/Animations/water/water_5.png", Rect(0, 0, 70, 70)));
 
-    // ´´½¨¶¯»­
-    Animation* animation = Animation::createWithSpriteFrames(frames, 0.2f);  // Ã¿Ö¡³ÖĞø0.2Ãë
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    Animation* animation = Animation::createWithSpriteFrames(frames, 0.2f);  // Ã¿Ö¡ï¿½ï¿½ï¿½ï¿½0.2ï¿½ï¿½
     Animate* animate = Animate::create(animation);
 
-    // ÏÔÊ¾½½Ë®¶¯»­
+    // ï¿½ï¿½Ê¾ï¿½ï¿½Ë®ï¿½ï¿½ï¿½ï¿½
     auto waterEffect = Sprite::create("../Resources/Animations/water/water_1.png");
     double x = _sprite->getPosition().x;
     double y = _sprite->getPosition().y;
@@ -467,10 +521,10 @@ void Crops::waterCrop() {
     waterEffect->setScale(WATER_RATIO);
     this->addChild(waterEffect, -1);
 
-    // Ö´ĞĞ¶¯»­
+    // Ö´ï¿½Ğ¶ï¿½ï¿½ï¿½
     waterEffect->runAction(animate);
 
-    // ¶¯»­½áÊøºóÒÆ³ıĞ§¹û
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ³ï¿½Ğ§ï¿½ï¿½
     auto fadeOut = FadeOut::create(1.0f);
     auto removeEffect = CallFunc::create([waterEffect]() {
         waterEffect->removeFromParent();
@@ -480,37 +534,47 @@ void Crops::waterCrop() {
     waterEffect->runAction(sequence);
 }
 
-//ÅĞ¶ÏÅ©×÷ÎïÊÇ·ñÒÑ¾­³ÉÊì
+//ï¿½Ğ¶ï¿½Å©ï¿½ï¿½ï¿½ï¿½ï¿½Ç·ï¿½ï¿½Ñ¾ï¿½ï¿½ï¿½ï¿½ï¿½
 bool Crops::isReadyToHarvest() const {
-    // ¼ì²éÅ©×÷ÎïÊÇ·ñÒÑ¾­±»²ÉÕª
+    // ï¿½ï¿½ï¿½Å©ï¿½ï¿½ï¿½ï¿½ï¿½Ç·ï¿½ï¿½Ñ¾ï¿½ï¿½ï¿½ï¿½ï¿½Õª
     if (_isRemoved == true) {
         return false;
     }
 
-    // ¼ì²é sprite ÊÇ·ñÎª¿ÕÖ¸Õë
+    // ï¿½ï¿½ï¿½ sprite ï¿½Ç·ï¿½Îªï¿½ï¿½Ö¸ï¿½ï¿½
     if (_sprite == nullptr) {
         CCLOG("Error: Attempt to update crop with null sprite.");
-        return 0;
+        return false;
     }
+
+    // ä¼˜å…ˆä½¿ç”¨çŠ¶æ€å¯¹è±¡è¿›è¡Œåˆ¤æ–­ï¼ˆState æ¨¡å¼ï¼‰
+    if (_state) {
+        return _state->canHarvest(this);
+    }
+
+    // å…œåº•ï¼šä¿æŒåŸæœ‰é€»è¾‘
     return _growthStage >= _maxGrowthStage;
 }
 
-//ÉèÖÃÅ©×÷Îïµ±Ç°µÄ³É³¤½×¶Î
+//ï¿½ï¿½ï¿½ï¿½Å©ï¿½ï¿½ï¿½ïµ±Ç°ï¿½Ä³É³ï¿½ï¿½×¶ï¿½
 void Crops::setGrowthStage(int stage) {
-    // ¼ì²éµ±Ç°Ö¸ÕëÊÇ·ñÎª¿ÕÖ¸Õë£¬·ÀÖ¹µ÷ÓÃÒÑÊÍ·ÅµÄ¶ÔÏó
+    // ï¿½ï¿½éµ±Ç°Ö¸ï¿½ï¿½ï¿½Ç·ï¿½Îªï¿½ï¿½Ö¸ï¿½ë£¬ï¿½ï¿½Ö¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í·ÅµÄ¶ï¿½ï¿½ï¿½
     if (_isRemoved == true) {
         return;
     }
 
-    // ¼ì²é sprite ÊÇ·ñÎª¿ÕÖ¸Õë
+    // ï¿½ï¿½ï¿½ sprite ï¿½Ç·ï¿½Îªï¿½ï¿½Ö¸ï¿½ï¿½
     if (_sprite == nullptr) {
         CCLOG("Error: Attempt to update crop with null sprite.");
         return;
     }
-    _growthStage = std::min(stage, _maxGrowthStage); // È·±£½×¶Î²»³¬¹ı×î´óÖµ
-    // ¼ì²é×ÊÔ´Ó³Éä±íÖĞÊÇ·ñÓĞµ±Ç°Å©×÷ÎïÀàĞÍµÄ×ÊÔ´
+    _growthStage = std::min(stage, _maxGrowthStage); // È·ï¿½ï¿½ï¿½×¶Î²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Öµ
+
+    // ç”Ÿé•¿é˜¶æ®µè¢«å¤–éƒ¨ä¿®æ”¹æ—¶ï¼ŒåŒæ­¥æ›´æ–°çŠ¶æ€å¯¹è±¡
+    updateStateByGrowthStage();
+    // ï¿½ï¿½ï¿½ï¿½ï¿½Ô´Ó³ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç·ï¿½ï¿½Ğµï¿½Ç°Å©ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Íµï¿½ï¿½ï¿½Ô´
     if (_growthStage == _maxGrowthStage) {
-        // Èç¹ûÊÇ³ÉÊì½×¶Î£¬¼ÓÔØ³ÉÊì½×¶Î¶ÔÓ¦µÄ¼¾½ÚÌùÍ¼
+        // ï¿½ï¿½ï¿½ï¿½Ç³ï¿½ï¿½ï¿½×¶Î£ï¿½ï¿½ï¿½ï¿½Ø³ï¿½ï¿½ï¿½×¶Î¶ï¿½Ó¦ï¿½Ä¼ï¿½ï¿½ï¿½ï¿½ï¿½Í¼
         if (_matureTextures.find(_type) != _matureTextures.end()) {
             auto it = _matureTextures[_type].find(_currentSeason);
             if (it != _matureTextures[_type].end()) {
@@ -530,17 +594,17 @@ void Crops::setGrowthStage(int stage) {
     }
 }
 
-//Å©×÷ÎïÊÕ»ñÊ±µ÷ÓÃº¯Êı£¬É¾³ıµ±Ç°Å©×÷Îï¾«Áé
+//Å©ï¿½ï¿½ï¿½ï¿½ï¿½Õ»ï¿½Ê±ï¿½ï¿½ï¿½Ãºï¿½ï¿½ï¿½ï¿½ï¿½É¾ï¿½ï¿½ï¿½ï¿½Ç°Å©ï¿½ï¿½ï¿½ï¾«ï¿½ï¿½
 void Crops::harvestCrop() {
-    // ¼ì²éµ±Ç°Ö¸ÕëÊÇ·ñÎª¿ÕÖ¸Õë£¬·ÀÖ¹µ÷ÓÃÒÑÊÍ·ÅµÄ¶ÔÏó
+    // ï¿½ï¿½éµ±Ç°Ö¸ï¿½ï¿½ï¿½Ç·ï¿½Îªï¿½ï¿½Ö¸ï¿½ë£¬ï¿½ï¿½Ö¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í·ÅµÄ¶ï¿½ï¿½ï¿½
     if (this == nullptr) {
         CCLOG("Error: Attempt to update a null crop pointer.");
         return;
     }
-    if (_isRemoved == true) {//ÒÑ¾­±»²ÉÕªÁËµÄ²»ÄÜÖØ¸´²ÉÕª
+    if (_isRemoved == true) {//ï¿½Ñ¾ï¿½ï¿½ï¿½ï¿½ï¿½Õªï¿½ËµÄ²ï¿½ï¿½ï¿½ï¿½Ø¸ï¿½ï¿½ï¿½Õª
         return;
     }
-    //if (!canBePlanted()) { // Èç¹û²»Âú×ãÌõ¼ş£¨Ö÷ÒªÊÇµÈ¼¶¼ì²é£©
+    //if (!canBePlanted()) { // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Òªï¿½ÇµÈ¼ï¿½ï¿½ï¿½é£©
     //    CCLOG("Crop '%s' cannot be planted due to level restriction.", _type.c_str());
     //    return;
     //}
@@ -553,54 +617,54 @@ void Crops::harvestCrop() {
     }
 }
 
-//¿³Ê÷¶¯»­º¯Êı
+//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 void Crops::chopTree() {
     CCLOG("Tree '%s' is swaying...", _type.c_str());
 
-    // ¼ì²éÊÇ·ñÎªÊ÷ÀàĞÍ
+    // ï¿½ï¿½ï¿½ï¿½Ç·ï¿½Îªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     if (_type != "oak" && _type != "maple" && _type != "pine") {
         CCLOG("Error: Crop '%s' is not a tree and cannot swing.", _type.c_str());
         return;
     }
 
-    // ¶¨ÒåÊ÷Ò¡°ÚµÄ·ù¶ÈºÍËÙ¶È
-    float moveDistance = 3.0f; // Ë®Æ½ÒÆ¶¯µÄ¾àÀë£¨ÏñËØ£©
-    float swingAngle = 3.0f;    // Ò¡°ÚµÄ½Ç¶È£¨¶È£©
-    float duration = 0.5f;      // µ¥´ÎÒ¡°ÚËùĞèÊ±¼ä£¨Ãë£©
-    int repeatCount = 3;        // Ò¡°Ú´ÎÊı
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò¡ï¿½ÚµÄ·ï¿½ï¿½Èºï¿½ï¿½Ù¶ï¿½
+    float moveDistance = 3.0f; // Ë®Æ½ï¿½Æ¶ï¿½ï¿½Ä¾ï¿½ï¿½ë£¨ï¿½ï¿½ï¿½Ø£ï¿½
+    float swingAngle = 3.0f;    // Ò¡ï¿½ÚµÄ½Ç¶È£ï¿½ï¿½È£ï¿½
+    float duration = 0.5f;      // ï¿½ï¿½ï¿½ï¿½Ò¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ä£¨ï¿½ë£©
+    int repeatCount = 3;        // Ò¡ï¿½Ú´ï¿½ï¿½ï¿½
 
-    // ´´½¨Ïò×óÒ¡°ÚµÄ¶¯×÷
-    auto moveLeft = MoveBy::create(duration, Vec2(-moveDistance, 0)); // ×óÒÆ
-    auto rotateLeft = RotateBy::create(duration, -swingAngle);        // ×óĞı×ª
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò¡ï¿½ÚµÄ¶ï¿½ï¿½ï¿½
+    auto moveLeft = MoveBy::create(duration, Vec2(-moveDistance, 0)); // ï¿½ï¿½ï¿½ï¿½
+    auto rotateLeft = RotateBy::create(duration, -swingAngle);        // ï¿½ï¿½ï¿½ï¿½×ª
 
-    // ´´½¨ÏòÓÒÒ¡°ÚµÄ¶¯×÷
-    auto moveRight = MoveBy::create(duration, Vec2(moveDistance, 0)); // ÓÒÒÆ
-    auto rotateRight = RotateBy::create(duration, swingAngle);        // ÓÒĞı×ª
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò¡ï¿½ÚµÄ¶ï¿½ï¿½ï¿½
+    auto moveRight = MoveBy::create(duration, Vec2(moveDistance, 0)); // ï¿½ï¿½ï¿½ï¿½
+    auto rotateRight = RotateBy::create(duration, swingAngle);        // ï¿½ï¿½ï¿½ï¿½×ª
 
-    // ºÏ³ÉÒ¡°Ú¶¯×÷
+    // ï¿½Ï³ï¿½Ò¡ï¿½Ú¶ï¿½ï¿½ï¿½
     auto swingLeft = Spawn::create(moveLeft, rotateLeft, nullptr);
     auto swingRight = Spawn::create(moveRight, rotateRight, nullptr);
     auto swingSequence = Sequence::create(swingLeft, swingRight, nullptr);
 
-    // Ò¡°Ú¶¯×÷ÖØ¸´Ö¸¶¨´ÎÊı
+    // Ò¡ï¿½Ú¶ï¿½ï¿½ï¿½ï¿½Ø¸ï¿½Ö¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     auto repeatSwing = Repeat::create(swingSequence, repeatCount);
 
-    // Ìí¼Ó×îºóµÄĞı×ª 90 ¶È¶¯×÷
-    auto rotateFinal = RotateBy::create(0.5f, -90.0f); // 0.5 ÃëÏò×óĞı×ª 90 ¶È
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×ª 90 ï¿½È¶ï¿½ï¿½ï¿½
+    auto rotateFinal = RotateBy::create(0.5f, -90.0f); // 0.5 ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×ª 90 ï¿½ï¿½
 
-    // Ìí¼Óµ­³öÏûÊ§¶¯×÷
-    auto fadeOut = FadeOut::create(1.0f); // 1 Ãëµ­³ö
+    // ï¿½ï¿½ï¿½Óµï¿½ï¿½ï¿½ï¿½ï¿½Ê§ï¿½ï¿½ï¿½ï¿½
+    auto fadeOut = FadeOut::create(1.0f); // 1 ï¿½ëµ­ï¿½ï¿½
 
-    // ÒÆ³ı½ÚµãµÄ»Øµ÷
+    // ï¿½Æ³ï¿½ï¿½Úµï¿½Ä»Øµï¿½
     auto removeTree = CallFunc::create([this]() {
         CCLOG("Tree '%s' has disappeared after swaying and rotating.", _type.c_str());
         this->removeFromParentAndCleanup(true);
         });
 
-    // ×éºÏËùÓĞ¶¯×÷£ºÒ¡°Ú -> Ğı×ª -> µ­³ö -> ÒÆ³ı
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ğ¶ï¿½ï¿½ï¿½ï¿½ï¿½Ò¡ï¿½ï¿½ -> ï¿½ï¿½×ª -> ï¿½ï¿½ï¿½ï¿½ -> ï¿½Æ³ï¿½
     auto fullSequence = Sequence::create(repeatSwing, rotateFinal, fadeOut, removeTree, nullptr);
 
-    // Ö´ĞĞ¶¯×÷
+    // Ö´ï¿½Ğ¶ï¿½ï¿½ï¿½
     this->_sprite->runAction(fullSequence);
 }
 
