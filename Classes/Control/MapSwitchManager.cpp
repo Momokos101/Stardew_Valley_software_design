@@ -1,8 +1,8 @@
 /****************************************************************
  * Project Name:  Stardew_Valley
  * File Name:     MapSwitchManager.cpp
- * File Function: µØÍ¼ÇĞ»»¿ØÖÆÀàMapSwitchManagerµÄÊµÏÖ
- * Author:        ½ğºãÓî
+ * File Function: ï¿½ï¿½Í¼ï¿½Ğ»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½MapSwitchManagerï¿½ï¿½Êµï¿½ï¿½
+ * Author:        ï¿½ï¿½ï¿½ï¿½ï¿½
  * Update Date:   2024/12/11
  * License:       MIT License
  ****************************************************************/
@@ -42,34 +42,39 @@ bool MapSwitchManager::init(Character* character, GameMap* currentMap, GameViewC
 bool MapSwitchManager::switchMap(const std::string& newMapFile, Vec2& teleportPOS, Node* TreeLayer,Node* MapLayer) {
     CCLOG("Switching map to: %s", newMapFile.c_str());
 
-    // ÇåÀíµÆ¹âĞ§¹û£¨RAII »á×Ô¶¯Ïú»Ù¾ÉµÆ¹â£©
+    // ï¿½ï¿½ï¿½ï¿½ï¿½Æ¹ï¿½Ğ§ï¿½ï¿½ï¿½ï¿½RAII ï¿½ï¿½ï¿½Ô¶ï¿½ï¿½ï¿½ï¿½Ù¾ÉµÆ¹â£©
     _lightingGuard.reset();
 
     if (_currentMap) {
-        // ±£´æµ±Ç°µØÍ¼×´Ì¬
+        // ï¿½ï¿½ï¿½æµ±Ç°ï¿½ï¿½Í¼×´Ì¬
         _currentMap->saveChangesToStateManager();
-        MapLayer->removeChild(_currentMap, true); // ÇåÀí¾ÉµØÍ¼
+        MapLayer->removeChild(_currentMap, true); // ï¿½ï¿½ï¿½ï¿½ï¿½Éµï¿½Í¼
     }
     
 
     GameMap* newMap = nullptr;
 
     if (newMapFile.find("Combat") != std::string::npos) {
-        newMap = FarmMap::create(newMapFile,TreeLayer);
+        // å†œåœºåœ°å›¾
+        newMap = _farmAdapter.createAndAttachMap(newMapFile, TreeLayer, MapLayer);
+        teleportPOS = _farmAdapter.getTeleportPosition(newMap);
     }
     else if (newMapFile.find("house") != std::string::npos) {
-        newMap = IndoorMap::create(newMapFile, Vec2(FARM_HOUSE_CREAT_X, FARM_HOUSE_CREAT_Y));
-        teleportPOS = newMap->tileToAbsolute(Vec2(FARM_HOUSE_TELE_X, FARM_HOUSE_TELE_Y));
+        // å®¤å†…åœ°å›¾ï¼ˆå†œåœºæˆ¿å­ï¼‰
+        newMap = _indoorAdapter.createAndAttachMap(newMapFile, nullptr, MapLayer);
+        teleportPOS = _indoorAdapter.getTeleportPosition(newMap);
     }
     else if (newMapFile.find("Town") != std::string::npos) {
-        newMap = TownMap::create(newMapFile,Vec2(TOWN_CREAT_X, TOWN_CREAT_Y));
-        teleportPOS = newMap->tileToAbsolute(Vec2(TOWN_TELE_X, TOWN_TELE_Y));
+        // å°é•‡åœ°å›¾
+        newMap = _townAdapter.createAndAttachMap(newMapFile, nullptr, MapLayer);
+        teleportPOS = _townAdapter.getTeleportPosition(newMap);
     }
     else if (newMapFile.find("Mine") != std::string::npos) {
-        newMap = MineMap::create(newMapFile, Vec2(MINE_CREAT_X, MINE_CREAT_Y));
-        teleportPOS = newMap->tileToAbsolute(Vec2(MINE_TELE_X, MINE_TELE_Y));
+        // çŸ¿æ´åœ°å›¾
+        newMap = _mineAdapter.createAndAttachMap(newMapFile, nullptr, MapLayer);
+        teleportPOS = _mineAdapter.getTeleportPosition(newMap);
         if (newMap) {
-            // Îª¿ó¶´µØÍ¼Ìí¼ÓµÆ¹âĞ§¹û
+            // ä¸ºçŸ¿æ´åœ°å›¾æ·»åŠ ç¯å…‰æ•ˆæœ
             _lightingGuard = std::make_unique<IndoorLighting>(newMap);
         }
     }
@@ -85,15 +90,14 @@ bool MapSwitchManager::switchMap(const std::string& newMapFile, Vec2& teleportPO
 
     _currentMap = newMap;
     _currentMap->applySavedChanges();
-    MapLayer->addChild(_currentMap,MAP_LAYER_GRADE);
 
-    // ¸üĞÂ InteractionManager µÄµØÍ¼ÒıÓÃ
+    // ï¿½ï¿½ï¿½ï¿½ InteractionManager ï¿½Äµï¿½Í¼ï¿½ï¿½ï¿½ï¿½
     if (_interactionManager) {
         _interactionManager->setMap(_currentMap);
         CCLOG("InteractionManager map updated.");
     }
 
-    // ¸üĞÂÊÓ½Ç¿ØÖÆÆ÷µÄµØÍ¼ÒıÓÃ
+    // ï¿½ï¿½ï¿½ï¿½ï¿½Ó½Ç¿ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Äµï¿½Í¼ï¿½ï¿½ï¿½ï¿½
     if (_viewController) {
         _viewController->setMap(_currentMap);
         CCLOG("GameViewController map updated.");

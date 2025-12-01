@@ -171,6 +171,21 @@
     <ClInclude Include="..\Classes\Layer\FestivalLayer.h">
       <Filter>Classes\Layer</Filter>
     </ClInclude>
+    <ClInclude Include="..\Classes\Maps\Adapter\MapAdapter.h">
+      <Filter>Classes\Maps</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Classes\Maps\Bridge\DefaultMapImplementation.h">
+      <Filter>Classes\Maps</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Classes\Maps\Bridge\MapImplementation.h">
+      <Filter>Classes\Maps</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Classes\Maps\Factory\MapFactory.h">
+      <Filter>Classes\Maps</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Classes\Animal\AnimalBuilder.h">
+      <Filter>Classes\Animal</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -283,6 +298,18 @@
     </ClCompile>
     <ClCompile Include="..\Classes\AppDelegate\AppDelegate.cpp">
       <Filter>Classes\AppDelegate</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Classes\Maps\Adapter\MapAdapter.cpp">
+      <Filter>Classes\Maps</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Classes\Maps\Bridge\DefaultMapImplementation.cpp">
+      <Filter>Classes\Maps</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Classes\Maps\Factory\MapFactory.cpp">
+      <Filter>Classes\Maps</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Classes\Animal\AnimalBuilder.cpp">
+      <Filter>Classes\Animal</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -8,10 +8,15 @@
  ****************************************************************/
 
 #include "GameMap.h"
+#include "Maps/Bridge/DefaultMapImplementation.h"
+
 USING_NS_CC;
 
 GameMap::GameMap(const Vec2& mapPosition)
-    : _tile_map(nullptr), _map_position(mapPosition) {}
+    : _tile_map(nullptr),
+      _map_position(mapPosition) {
+_implementation = std::make_unique<DefaultMapImplementation>();
+}
 
 GameMap::~GameMap() {}
 
@@ -54,51 +59,27 @@ bool GameMap::init(const std::string& mapFile, const Vec2& mapPosition)
 // 转换世界坐标到地图瓦片坐标
 Vec2 GameMap::absoluteToTile(const Vec2& pixelPoint)
 {
-    float scale = this->getScale();
-    // 获取瓦片大小
-    Size tileSize = _tile_map->getTileSize();
-
-    float tileX = (pixelPoint.x - _map_position.x) / (tileSize.width * scale);
-    float tileY = (pixelPoint.y - _map_position.y) / (tileSize.height * scale);
-
-    // 瓦片地图左上坐标系的y轴是翻转的
-    tileY = _tile_map->getMapSize().height - tileY;
-
-    return Vec2(floor(tileX), floor(tileY));
+    if (!_implementation) {
+        return Vec2::ZERO;
+    }
+    return _implementation->absoluteToTile(_tile_map, _map_position, this->getScale(), pixelPoint);
 }
 
 // 转换瓦片坐标到世界坐标（中点）
 Vec2 GameMap::tileToAbsolute(const Vec2& tileCoord)
 {
-    float scale = this->getScale();
-    // 获取瓦片大小
-    Size tileSize = _tile_map->getTileSize();
-
-    // 计算瓦片左下角的绝对坐标
-    float pixelX = tileCoord.x * tileSize.width * scale + _map_position.x;
-    float pixelY = (_tile_map->getMapSize().height - tileCoord.y - 1) * tileSize.height * scale + _map_position.y;
-
-    // 加上瓦片一半的宽高，得到瓦片的中点坐标
-    pixelX += (tileSize.width * scale) / 2.0f;
-    pixelY += (tileSize.height * scale) / 2.0f;
-
-    return Vec2(pixelX, pixelY);
+    if (!_implementation) {
+        return Vec2::ZERO;
+    }
+    return _implementation->tileToAbsolute(_tile_map, _map_position, this->getScale(), tileCoord);
 }
 
 Vec2 GameMap::tileToRelative(const Vec2& tileCoord)
 {
-    // 获取瓦片大小
-    Size tileSize = _tile_map->getTileSize();
-
-    // 计算瓦片左下角的绝对坐标
-    float pixelX = tileCoord.x * tileSize.width  + _map_position.x;
-    float pixelY = (_tile_map->getMapSize().height - tileCoord.y - 1) * tileSize.height  + _map_position.y;
-
-    // 加上瓦片一半的宽高，得到瓦片的中点坐标
-    pixelX += (tileSize.width ) / 2.0f;
-    pixelY += (tileSize.height) / 2.0f;
-
-    return Vec2(pixelX, pixelY);
+    if (!_implementation) {
+        return Vec2::ZERO;
+    }
+    return _implementation->tileToRelative(_tile_map, _map_position, tileCoord);
 }
 
 // 地图像素大小
@@ -127,53 +108,26 @@ const Vec2& GameMap::getPosition() {
 // 获取某位置Layername图层的GID
 int GameMap::getTileGIDAt(const std::string& layerName, const Vec2& tileCoord) const
 {
-    auto layer = _tile_map->getLayer(layerName);
-    if (!layer) {
+    if (!_implementation) {
         return 0;
     }
-
-    auto map_size = _tile_map->getMapSize();
-    auto tile_size = _tile_map->getTileSize();
-
-    if (tileCoord.x < 0 || tileCoord.y < 0 || tileCoord.x >= map_size.width || tileCoord.y >= map_size.height) {
-        return 0;
-    }
-
-    return layer->getTileGIDAt(tileCoord);
+    return _implementation->getTileGIDAt(_tile_map, layerName, tileCoord);
 }
 
 // 获取某GID对应图块的属性
 cocos2d::ValueMap GameMap::getTilePropertiesForGID(int GID) const
 {
-    if (GID == 0) return cocos2d::ValueMap();
-    auto tileProperties = _tile_map->getPropertiesForGID(GID);
-    if (tileProperties.getType() == Value::Type::MAP)
-    {
-        return tileProperties.asValueMap();
+    if (!_implementation) {
+        return cocos2d::ValueMap();
     }
-    return cocos2d::ValueMap();
+    return _implementation->getTilePropertiesForGID(_tile_map, GID);
 }
 
 // 替换指定图层的瓦片
 void GameMap::replaceTileAt(const std::string& layerName, const Vec2& tileCoord, int newGID, bool isUserAction) {
-    
-    // 获取目标图层
-    auto layer = _tile_map->getLayer(layerName);
-    if (!layer) {
-        CCLOG("Layer '%s' not found!", layerName.c_str());
-        return;
+    if (_implementation) {
+        _implementation->replaceTileAt(_tile_map, layerName, tileCoord, newGID);
     }
-
-    // 检查瓦片坐标是否有效
-    auto mapSize = _tile_map->getMapSize(); // 地图尺寸（瓦片数）
-    if (tileCoord.x < 0 || tileCoord.y < 0 || tileCoord.x >= mapSize.width || tileCoord.y >= mapSize.height) {
-        CCLOG("Tile position (%f, %f) is out of bounds!", tileCoord.x, tileCoord.y);
-        return;
-    }
-
-    // 设置新瓦片
-    layer->setTileGID(newGID, tileCoord);
-    CCLOG("Replaced tile at (%f, %f) on layer '%s' with GID=%d", tileCoord.x, tileCoord.y, layerName.c_str(), newGID);
     // 如果是用户行为保存修改，如果是恢复更改时不保存避免重复保存导致死循环
     if(isUserAction)
     {

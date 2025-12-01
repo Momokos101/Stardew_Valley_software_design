@@ -120,6 +120,8 @@ constexpr int MINE_CREAT_X = 1080;                                          // �
 constexpr int MINE_CREAT_Y = 1120;                                          // 矿洞地图的创建位置
 constexpr int MINE_TELE_X = 1;                                              // 农场室内地图传送X坐标
 constexpr int MINE_TELE_Y = 5;                                              // 农场室内地图传送Y坐标
+constexpr int FARM_CREAT_X = 0;
+constexpr int FARM_CREAT_Y = 0;
 
 // 初始界面相关设置
 constexpr int BG_MOVE_SPEED = 2;                                           //背景图移动速度

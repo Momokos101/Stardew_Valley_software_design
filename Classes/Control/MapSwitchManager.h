@@ -1,8 +1,8 @@
 /****************************************************************
  * Project Name:  Stardew_Valley
  * File Name:     MapSwitchManager.h
- * File Function: µØÍ¼ÇĞ»»¿ØÖÆÀàMapSwitchManagerµÄ¶¨Òå
- * Author:        ½ğºãÓî
+ * File Function: ï¿½ï¿½Í¼ï¿½Ğ»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½MapSwitchManagerï¿½Ä¶ï¿½ï¿½ï¿½
+ * Author:        ï¿½ï¿½ï¿½ï¿½ï¿½
  * Update Date:   2024/12/11
  * License:       MIT License
  ****************************************************************/
@@ -17,6 +17,8 @@
 #include "Maps/TownMap.h"
 #include "Maps/MineMap.h"
 #include "Maps/IndoorLighting.h"
+#include "Maps/Factory/MapFactory.h"
+#include "Maps/Adapter/MapAdapter.h"
 #include "Character/Character.h"
 #include "GameViewController.h"
 #include "InteractionManager.h"
@@ -26,37 +28,48 @@ USING_NS_CC;
 class MapSwitchManager : public Node
 {
 public:
-    // ´´½¨ MapSwitchManager ÊµÀı
+    // ï¿½ï¿½ï¿½ï¿½ MapSwitchManager Êµï¿½ï¿½
     static MapSwitchManager* create(Character* character, GameMap* currentMap, GameViewController* viewController,InteractionManager* interactionManager);
 
-    // ÇĞ»»µØÍ¼
+    // ï¿½Ğ»ï¿½ï¿½ï¿½Í¼
     bool switchMap(const std::string& newMapFile, Vec2& teleportPOS,Node* TreeLayer, Node* MapLayer);
 
 private:
-    // ¹¹Ôìº¯ÊıºÍÎö¹¹º¯Êı
+    // ï¿½ï¿½ï¿½ìº¯ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     MapSwitchManager();
 
     bool init(Character* character, GameMap* currentMap, GameViewController* viewController, InteractionManager* interactionManager);
 
-    // ¸ù¾İ´«ËÍµã ID »ñÈ¡Ä¿±êÎ»ÖÃ
+    // ï¿½ï¿½ï¿½İ´ï¿½ï¿½Íµï¿½ ID ï¿½ï¿½È¡Ä¿ï¿½ï¿½Î»ï¿½ï¿½
     Vec2 getTargetPositionByID(int teleportID, GameMap* newMap);
 
 
 private:
-    // µ±Ç°µÄ½ÇÉ«¶ÔÏó
+    // ï¿½ï¿½Ç°ï¿½Ä½ï¿½É«ï¿½ï¿½ï¿½ï¿½
     Character* _character; 
 
-    // µ±Ç°µØÍ¼¶ÔÏó
+    // ï¿½ï¿½Ç°ï¿½ï¿½Í¼ï¿½ï¿½ï¿½ï¿½
     GameMap* _currentMap; 
 
-    // ÊÓ½Ç¿ØÖÆÆ÷
+    // ï¿½Ó½Ç¿ï¿½ï¿½ï¿½ï¿½ï¿½
     GameViewController* _viewController;
 
-    // ½»»¥¹ÜÀíÆ÷
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     InteractionManager* _interactionManager; 
 
-    // RAII ¹ÜÀíµÆ¹âĞ§¹û
+    // RAII ï¿½ï¿½ï¿½ï¿½ï¿½Æ¹ï¿½Ğ§ï¿½ï¿½
     std::unique_ptr<IndoorLighting> _lightingGuard; 
+
+    // åœ°å›¾å·¥å‚ä¸é€‚é…å™¨ï¼ˆç”¨äºè§£è€¦å…·ä½“åœ°å›¾åˆ›å»ºé€»è¾‘ï¼‰
+    FarmMapFactory _farmFactory;
+    TownMapFactory _townFactory;
+    MineMapFactory _mineFactory;
+    IndoorMapFactory _indoorFactory;
+
+    FarmMapAdapter _farmAdapter{&_farmFactory};
+    TownMapAdapter _townAdapter{&_townFactory};
+    MineMapAdapter _mineAdapter{&_mineFactory};
+    IndoorMapAdapter _indoorAdapter{&_indoorFactory};
 
 
 };

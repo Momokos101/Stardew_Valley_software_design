@@ -1,8 +1,8 @@
 /****************************************************************
  * Project Name:  Stardew_Valley
- * File Name:     FarmMap.h
- * File Function: µØÍ¼»ùÀàMapÀàµÄ¶¨Òå
- * Author:        ½ğºãÓî
+ * File Name:     GameMap.h
+ * File Function: åœ°å›¾åŸºç±» GameMap çš„å®šä¹‰ï¼ˆä½œä¸º Bridge æ¨¡å¼ä¸­çš„æŠ½è±¡å±‚ï¼‰
+ * Author:        ï¿½ï¿½ï¿½ï¿½ï¿½
  * Update Date:   2024/12/11
  * License:       MIT License
  ****************************************************************/
@@ -13,8 +13,11 @@
 #include "cocos2d.h"
 #include "Crops/Crops.h"
 #include "Control/MapStateManager.h"
+#include <memory>
 
 USING_NS_CC;
+
+class MapImplementation;
 
 class GameMap : public Node {
 public:
@@ -22,57 +25,60 @@ public:
 
     virtual ~GameMap();
 
-    // ´´½¨µØÍ¼
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í¼
     virtual GameMap* create(const std::string& mapFile, const Vec2& mapPosition = Vec2(0, 0));
 
-    // ³õÊ¼»¯µØÍ¼
+    // ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½Í¼
     virtual bool init(const std::string& mapFile, const Vec2& mapPosition);
 
-    // ×ª»»ÊÀ½ç×ø±êµ½µØÍ¼ÍßÆ¬×ø±ê
+    // ×ªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½êµ½ï¿½ï¿½Í¼ï¿½ï¿½Æ¬ï¿½ï¿½ï¿½ï¿½
     virtual Vec2 absoluteToTile(const Vec2& pixelPoint);
 
-    // ×ª»»ÍßÆ¬×ø±êµ½ÊÀ½ç×ø±ê£¨ÖĞµã£©
+    // ×ªï¿½ï¿½ï¿½ï¿½Æ¬ï¿½ï¿½ï¿½êµ½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ê£¨ï¿½Ğµã£©
     Vec2 tileToAbsolute(const Vec2& tileCoord);
 
-    // ×ª»»ÍßÆ¬×ø±êµ½ÒÔµØÍ¼Îª¸¸½ÚµãµÄÏà¶Ô×ø±ê£¨ÖĞµã£©
+    // ×ªï¿½ï¿½ï¿½ï¿½Æ¬ï¿½ï¿½ï¿½êµ½ï¿½Ôµï¿½Í¼Îªï¿½ï¿½ï¿½Úµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ê£¨ï¿½Ğµã£©
     Vec2 tileToRelative(const Vec2& tileCoord);
 
-    // µØÍ¼ÏñËØ´óĞ¡
+    // ï¿½ï¿½Í¼ï¿½ï¿½ï¿½Ø´ï¿½Ğ¡
     const Size& getMapSize() const;
 
-    // µØÍ¼ÍßÆ¬´óĞ¡
+    // ï¿½ï¿½Í¼ï¿½ï¿½Æ¬ï¿½ï¿½Ğ¡
     const Size& getMapSizeinTile();
 
-    // µØÍ¼¾ø¶ÔÎ»ÖÃ
+    // ï¿½ï¿½Í¼ï¿½ï¿½ï¿½ï¿½Î»ï¿½ï¿½
     const Vec2& GameMap::getPosition();
 
-    // »ñÈ¡Ä³Î»ÖÃLayernameÍ¼²ãµÄGID
+    // ï¿½ï¿½È¡Ä³Î»ï¿½ï¿½LayernameÍ¼ï¿½ï¿½ï¿½GID
     int getTileGIDAt(const std::string& layerName, const Vec2& tileCoord) const ;
 
-    // »ñÈ¡Ä³GID¶ÔÓ¦Í¼¿éµÄÊôĞÔ
+    // ï¿½ï¿½È¡Ä³GIDï¿½ï¿½Ó¦Í¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     cocos2d::ValueMap getTilePropertiesForGID(int GID) const;
 
-    // Ìæ»»Ö¸¶¨Í¼²ãµÄÍßÆ¬£¬ÔÚ¿ó¶´×ÓÀàÊµÏÖË¢ĞÂÂß¼­¼ÇÂ¼
+    // ï¿½æ»»Ö¸ï¿½ï¿½Í¼ï¿½ï¿½ï¿½ï¿½ï¿½Æ¬ï¿½ï¿½ï¿½Ú¿ï¿½ï¿½ï¿½ï¿½ï¿½Êµï¿½ï¿½Ë¢ï¿½ï¿½ï¿½ß¼ï¿½ï¿½ï¿½Â¼
     virtual void replaceTileAt(const std::string& layerName, const Vec2& tileCoord, int newGID, bool isUserAction = true);
 
-    // »ñÈ¡µØÍ¼ÉÏ½ÚµãµÄÖ¸ÕëĞéº¯Êı
+    // ï¿½ï¿½È¡ï¿½ï¿½Í¼ï¿½Ï½Úµï¿½ï¿½Ö¸ï¿½ï¿½ï¿½éº¯ï¿½ï¿½
     virtual Node* getNodeAtPosition(const Vec2& tilePos);
 
-    // »ñÈ¡ÍßÆ¬µØÍ¼Ö¸Õë
+    // ï¿½ï¿½È¡ï¿½ï¿½Æ¬ï¿½ï¿½Í¼Ö¸ï¿½ï¿½
     TMXTiledMap* getTiledMap() const;
 
-    // »Ö¸´´æ´¢µÄµØÍ¼ĞÅÏ¢
+    // ï¿½Ö¸ï¿½ï¿½æ´¢ï¿½Äµï¿½Í¼ï¿½ï¿½Ï¢
     virtual void applySavedChanges();
 
-    // ±£´æµØÍ¼ĞÅÏ¢£¬Ğéº¯ÊıÊÇÎªÁË·ÀÖ¹×ÓÀàÓĞÆäËûĞèÒª±£´æµÄĞÅÏ¢
+    // ï¿½ï¿½ï¿½ï¿½ï¿½Í¼ï¿½ï¿½Ï¢ï¿½ï¿½ï¿½éº¯ï¿½ï¿½ï¿½ï¿½Îªï¿½Ë·ï¿½Ö¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Òªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï¢
     virtual void saveChangesToStateManager() const;
 
-    // µØÍ¼ÀàĞÍ
+    // ï¿½ï¿½Í¼ï¿½ï¿½ï¿½ï¿½
     virtual MapType getType() const { return MapType::Generic; }
 protected:
-    std::string _mapName;     // µØÍ¼ÎÄ¼şÃû
-    TMXTiledMap* _tile_map;  // ÍßÆ¬µØÍ¼Àà
-    Vec2 _map_position;      // µØÍ¼´´½¨Î»ÖÃ
+    std::string _mapName;     // ï¿½ï¿½Í¼ï¿½Ä¼ï¿½ï¿½ï¿½
+    TMXTiledMap* _tile_map;  // ï¿½ï¿½Æ¬ï¿½ï¿½Í¼ï¿½ï¿½
+    Vec2 _map_position;      // ï¿½ï¿½Í¼ï¿½ï¿½ï¿½ï¿½Î»ï¿½ï¿½
+
+    // Bridge æ¨¡å¼ä¸­çš„å®ç°éƒ¨åˆ†
+    std::unique_ptr<MapImplementation> _implementation;
 };
 
 #endif // GAME_MAP_H_

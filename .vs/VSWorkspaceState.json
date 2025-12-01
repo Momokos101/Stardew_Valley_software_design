@@ -1,8 +1,13 @@
 {
   "ExpandedNodes": [
     "",
-    "\\proj.win32"
+    "\\Classes",
+    "\\Classes\\Animal",
+    "\\Classes\\Maps",
+    "\\Classes\\Maps\\Bridge",
+    "\\proj.win32",
+    "\\Resources\\Maps"
   ],
-  "SelectedNode": "\\proj.win32\\Stardew_Valley.sln",
+  "SelectedNode": "\\Classes\\Animal\\AnimalBuilder.cpp",
   "PreviewInSolutionExplorer": false
 }

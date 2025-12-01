@@ -10,6 +10,7 @@
 #include "FarmMap.h"
 #include "Classes/Crops/Crops.h"
 #include "Classes/Animal/Animal.h"
+#include "Classes/Animal/AnimalBuilder.h"
 #include "Classes/Animal/Fish.h"
 
 
@@ -183,10 +184,14 @@ void FarmMap::plantTreesOnPathLayer() {
 void FarmMap::initializeAnimals() {
     CCLOG("Initializing animals...");
 
-    
-    
+    // 使用 Builder 构建动物实例，便于后续扩展更多配置
+    AnimalBuilder builder;
+
     // 创建羊
-    Animal* sheep = Animal::create("sheep", SHEEP_START_POSITION);
+    Animal* sheep = builder
+        .withType("sheep")
+        .withStartPosition(SHEEP_START_POSITION)
+        .build();
     if (sheep) {
         _tile_map->addChild(sheep, 10);
         CCLOG("Sheep added successfully!");
@@ -196,7 +201,10 @@ void FarmMap::initializeAnimals() {
     }
 
     // 创建鸡
-    Animal* chicken = Animal::create("chicken", CHICKEN_START_POSITION);
+    Animal* chicken = builder
+        .withType("chicken")
+        .withStartPosition(CHICKEN_START_POSITION)
+        .build();
     if (chicken) {
         _tile_map->addChild(chicken, 10);
         CCLOG("Chicken added successfully!");
@@ -206,7 +214,10 @@ void FarmMap::initializeAnimals() {
     }
 
     // 创建牛
-    Animal* cow = Animal::create("cow", COW_START_POSITION);
+    Animal* cow = builder
+        .withType("cow")
+        .withStartPosition(COW_START_POSITION)
+        .build();
     if (cow) {
         _tile_map->addChild(cow, 10);
         CCLOG("Cow added successfully!");
