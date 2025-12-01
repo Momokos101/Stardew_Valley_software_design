@@ -4,7 +4,7 @@
 
 ## 项目名称
 
-Stardew_Valley
+Stardew_Valley（软件设计模式重构版）
 
 ## 项目简介
 
@@ -14,27 +14,73 @@ A project of Stardew Valley based on [Cocos2d-x 3.17.2](https://docs.cocos.com/c
 
 > * Programing Paradigm 2024 (2024年同济大学程序设计范式)
 
-该项目是一个基于 [Cocos2d-x 3.17.2](https://docs.cocos.com/cocos2d-x/manual) 开发的星露谷游戏，灵感来自于《星露谷》《我的世界》等游戏，玩家将管理⾃⼰的农场，种植作物，养殖动物，与镇上的居⺠互动，参与节⽇活动，并探索周围的⾃然环境。
+该项目是一个基于 Cocos2d-x 的《星露谷物语》仿制游戏，灵感来自于《星露谷》《我的世界》等游戏，玩家将管理自己的农场，种植作物，养殖动物，与镇上的居民互动，参与节日活动，并探索周围的自然环境。
+
+### 软件设计模式版本说明
+
+当前仓库为在原有游戏功能基础上的“**软件设计模式重构版本**”，在不改变主要玩法的前提下，对核心模块进行了系统性的面向对象重构，重点包括：
+
+- **商店与定价系统：策略模式（Strategy）**
+  - 抽象 `PricingStrategy` 接口，具体实现 `SeasonalPricingStrategy`（季节价格策略）、`WeatherPricingStrategy`（天气价格策略）、`AffectionPricingStrategy`（好感度价格策略预留），由 `Store` 统一调度。
+- **时间系统：观察者模式（Observer）**
+  - `TimeManager` 作为时间发布者，`Store`、作物等实现 `TimeObserver` 接口，响应日期、季节、时间变化。
+- **农作物生长：状态模式（State）**
+  - 通过 `CropState` 抽象接口及 `SeedState`、`SproutingState`、`GrowingState`、`MatureState` 等具体状态类，管理作物多阶段生长逻辑。
+- **地图系统：桥接 + 适配器 + 工厂模式（Bridge / Adapter / Factory）**
+  - 使用 `GameMap` + `MapImplementation` 解耦地图抽象与具体实现；
+  - 使用 `MapAdapter` 给上层提供统一地图接口；
+  - 使用 `MapFactory` 统一创建农场、小镇、矿洞、室内等不同地图实例。
+
+更详细的设计模式说明与重构动机，见根目录文档：`设计模式重构报告.md`。
+
+### 运行环境与运行方式
+
+#### 运行环境
+
+- **操作系统**：Windows 10 / Windows 11（32/64 位均可，推荐 64 位）；
+- **开发工具**：Visual Studio 2022（Community 版及以上），已安装 **C++ 桌面开发** 工作负载；
+- **图形库与引擎**：项目自带完整的 `cocos2d-x 3.17.2` 源码与依赖，无需单独安装引擎。
+
+#### 运行步骤（本地编译运行）
+
+1. **获取代码**
+   - 使用 `git clone` 或 GitHub Desktop 将本仓库完整克隆到本地，例如：`E:\Stardew_Valley_软件设计`。
+   - 保证 `cocos2d`、`Classes`、`proj.win32` 等目录结构完整。
+
+2. **打开解决方案**
+   - 启动 Visual Studio 2022；
+   - 通过“**文件 → 打开 → 项目/解决方案**”，打开：  
+     `proj.win32/Stardew_Valley.sln`。
+
+3. **选择配置**
+   - 在 VS 顶部工具栏中，将配置设置为：  
+     - **方案配置**：`Debug`（或 `Release`）  
+     - **方案平台**：`Win32`
+
+4. **生成依赖库**
+   - 解决方案中包含几个子项目：`librecast`、`libSpine`、`libcocos2d`、`Stardew_Valley`；
+   - 推荐的顺序是：  
+     1）右键 `librecast` → “生成”；  
+     2）右键 `libSpine` → “生成”；  
+     3）右键 `libcocos2d` → “生成”；  
+     4）最后右键 `Stardew_Valley` → “生成”；  
+   - 或者直接在解决方案上右键选择“**重新生成解决方案**”，VS 会自动按依赖关系构建。
+
+5. **注意避免文件被占用**
+   - 若之前运行过游戏，`proj.win32/Debug.win32/Stardew_Valley.exe` 可能仍在运行；
+   - 在重新生成前，务必关闭游戏窗口，或在任务管理器中结束相关进程，否则会出现“**访问被拒绝 / 无法删除 EXE 或 DLL**”的错误。
+
+6. **运行游戏**
+   - 在 `Stardew_Valley` 项目上右键 → 选择“**设为启动项目**”；
+   - 点击 VS 顶部的“**本地 Windows 调试器**”绿色三角按钮，即可启动游戏；
+   - 或者在资源管理器中直接双击运行：  
+     `proj.win32/Debug.win32/Stardew_Valley.exe`。
+
+7. **资源路径说明**
+   - 游戏运行时会从 `Resources` 目录加载图片、音效、字体、地图等资源；
+   - 不要改变 `proj.win32` 与 `Resources` 的相对路径关系（否则需要同步修改 VS 中的资源拷贝脚本与搜索路径）。
 
 ---
-## 成员分工
-
-| 姓名 | 学号 | 分工 |
-| :---: | :---: | :---: |
-| 尹诚成 (组长) | 2351279 |**项目后端与UI设计** <br>代码审查 <br>`Character`类 <br>`CharacterAction`类 <br>`CharacterObjectList`类 <br>`CharacterMove`类 <br>`Box`类 <br>`PlacementMarkerLayer`类 <br>`UILayer`类 <br>`LoactionMap`类 <br>`HoverMenuItemImage`类 <br>`Store`类|
-| 金恒宇 | 2352280 |**项目后端与前端对接** <br>地图类统筹 <br>`GameViewControlle`类 <br>`InteractionManager`类 <br>`MapStateManager`类 <br>`MapSwitchManager`类 <br>`GameMap`类 <br>`FarmMap`类 <br>`TownMap`类 <br>`MineMap`类 <br>`IndoorLighting`类<br> `GameMainScene`类 <br> 农场地图绘制 小镇地图绘制|
-| 达思睿 | 2352288 |**UI设计与NPC交互**  <br> `StartGameScene` 类  <br> `NPC` 类<br> `Task` 类<br> `GiftItem` 类<br> `UILayer` 类<br> `TimeManager` 类 <br> `NPCManager` 类  <br> `GiftItemManager` 类  <br> `LoginLayer` 类<br> `FestivalLayer` 类<br> `ChatLayer` 类<br> `AudioControlLayer` 类 <br> 图标按钮绘制  <br> 音频引擎 |
-| 胡宝怡 | 2353409 |**农牧渔与地图初始化**  <br> `Animal` 类<br> `Fish` 类<br> `Animation` 类<br> `Crops` 类<br> `IndoorMap` 类<br> `MineMap` 类<br> 地图绘制|
-
-## 成员贡献
-
-| 姓名 | 学号 | 总提交行数 |.h和.cpp文件提交行数 | 工作量 |
-| :---: | :---: | :---: | :---: | :---: |
-| 尹诚成 (组长) | 2351279 | 5121 | 4804 | 35% |
-| 金恒宇 | 2352280 | 3974 | 2811 | 25% |
-| 达思睿 | 2352288 | 2176 | 2085 | 20% |
-| 胡宝怡 | 2353409 | 3265 | 2473 | 20% |
-
 ## 项目组成
 
 * `/Classes`
@@ -52,7 +98,7 @@ A project of Stardew Valley based on [Cocos2d-x 3.17.2](https://docs.cocos.com/c
 * `/proj.win32`
 游戏程序
 
-## 项目实现功能与项目技术细节
+## 项目实现功能与项目技术细节（设计模式重构版）
 
 ### 基础功能
 
@@ -289,154 +335,3 @@ A project of Stardew Valley based on [Cocos2d-x 3.17.2](https://docs.cocos.com/c
 
     本项目的 `Constant.h` 头文件集中存放了所有常变量的定义，注释完备，方便项目维护。
 
-### 项目开发日志
-
-#### 2024.11.22
-- Cocos2d-x 3.17.2及相关环境配置  
-- Markdown 基本语言掌握
-
-#### 2024.11.23
-- git 工具学习
-- GitHub Desktop 工具学习
-
-#### 2024.11.24
-- 明确项目代码规范
-- 明确git提交规范
-- 创建项目托管GitHub仓库
-- Cocos2d-x学习
-
-#### 2024.11.25-11.29
-- git 和 GitHub 补漏
-- Cocos2d-x学习
-
-#### 2024.12.01
-- 明确项目仓库组成
-- 讨论确定具体实现功能内容
-- 初步确定成员分工
-
-#### 2024.12.03
-- 初步实现 `CharacterMove` 类
-- 初步完成瓦片地图文件搭建
-- 初步实现 `FarmMap` 类
-
-#### 2024.12.04
-- 初步实现 `GameViewController` 类
-- 调整 `CharacterMove` 类
-
-#### 2024.12.05
-- 初步实现 `TimeManager` 类
-- 初步实现 `FarmScene` 类
-- 初步实现 `CharacterInfo` 类
-- 调整 `GameViewController` 类
-- 实现 `StartUpScene` 类
-
-#### 2024.12.06
-- 初步实现 `CharacterObjectList` 类
-- 实现物品数据设计
-- 调整 `Character` 类
-
-#### 2024.12.07
-- 初步实现 `HoverMenuItemImage` 类
-- 基本实现 `InteractionManager` 类
-- 调整 `CharacterMove` 类
-- 调整物品数据设计
-
-#### 2024.12.07
-- 基本实现 `GameMap` 类
-- 调整 `FarmMap` 类
-- 调整 `GameViewController` 类
-
-#### 2024.12.09
-- 初步实现 `UILayer` 类
-- 实现 `TimeManager` 类
-- 实现 `TimeManagerUI` 类
-- 将 `TimeManagerUI` 类合并到 `UILayer` 类中
-- 调整 `Character` 类
-- 调整 `HoverMenuItemImage` 类
-
-#### 2024.12.11
-- 实现 `IndoorMap` 类
-- 实现 `IndoorScene` 类
-- 初步实现 `SceneSwitcher` 类
-- 工作对接
-
-#### 2024.12.12
-- 调整 `InteractionManager` 类
-- 实现 `MapSwitchManager` 类
-- 初步实现 `Crop` 类
-- 初步实现 `NPC` 类
-
-#### 2024.12.13
-- 弃用 `SceneSwitcher` 类
-- 弃用 `IndoorScene` 类
-- 基本实现 `UILayer` 类
-- 调整 `Character` 及其基类
-- 实现 `PlacementMarkerLayer` 类
-- 实现 `LocationMap` 类
-- 初步实现 `CharacterAction` 类
-- 调整地图文件
-- 实现人物移动碰撞检测
-
-#### 2024.12.14
-- 调整 `characterAction` 类
-- 调整 `InteractionManager` 类
-- 初步实现存储和读取角色信息功能
-
-#### 2024.12.15
-- 基本实现存储和读取角色信息功能
-- 进一步实现 `Crop` 类
-- 调整 `FarmMap` 类
-- 调整 `GameMap` 类
-
-#### 2024.12.16
-- 弃用 `FarmMapScene` 类
-- 初步实现 `Animation` 类
-- 实现  `GameMainScene` 类 
-- 完善 `UILayer` 类
-- 调整 `LocationMap` 类
-- 调整 `Character` 类及其基类
-- 调整 `InteractionManager` 类
-
-#### 2024.12.17
-- 初步实现 `AudioControlUI` 类
-- 初步实现 `AudioControlLayer` 类
-- 初步实现 `ChatLayer` 类
-- 初步实现 `Animal` 类
-- 进一步实现 `NPC` 类
-- 基本实现 `Crop` 类
-
-#### 2024.12.18
-- 初步实现 `Task` 类
-- 初步实现 `Box` 类
-- 基本实现 `NPC` 类
-- 调整 `UILayer` 类
-
-#### 2024.12.19
-- 基本实现 `Fish` 类
-- 基本实现 `Box` 类
-- 实现 `TownMap` 类
-- 调整 `GameViewController` 类
-- 调整 `Character` 类及其基类
-- 调整 `UILayer` 类
-
-#### 2024.12.20
-- 基本实现 `Store` 类
-- 实现 `Fish` 类
-- 实现 `Animal` 类
-- 实现 `MapStateManager` 类
-- 实现 `MineMap` 类
-- 完善 `FarmMap` 类
-
-#### 2024.12.21
-- 调整 `Fish` 类
-- 调整 `Character` 及其基类
-- 完善 `UILayer` 类
-- 调整UI与用户交互细节
-- 基本实现市场经济系统
-
-#### 2024.12.21
-- 完成合成表功能
-- 项目测试与收尾工作
-
----
-#### 文档更新日期：2024年12月22日
