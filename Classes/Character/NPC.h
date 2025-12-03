@@ -44,34 +44,37 @@ public:
     // 初始化 NPC 的精灵和动画
     void initializeSprite(const std::string& idleImage, const std::vector<std::string>& walkFrames);
 
-    // NPC 显示对话框
-    void showDialog();
+    // 以下接口为可多态重写的方法，供 NullNPC 等子类覆盖
 
-    void showDialogue(const std::string& dialogueText);
+    // NPC 显示对话框
+    virtual void showDialog();
+
+    // 显示指定对话文本
+    virtual void showDialogue(const std::string& dialogueText);
 
     // 增加好感度
-    void NPC::increaseAffection(int value);
+    virtual void increaseAffection(int value);
 
-    //执行求婚逻辑
-    void NPC::marryPlayer();
+    // 执行求婚逻辑
+    virtual void marryPlayer();
     
-    //播放求婚动画
-    void NPC::playMarriageAnimation();
+    // 播放求婚动画
+    virtual void playMarriageAnimation();
 
-    //是否结婚的选择框
-    void NPC::showMarriageChoices();
+    // 是否结婚的选择框
+    virtual void showMarriageChoices();
 
     // 检查玩家是否在 NPC 附近
     bool isPlayerNear(cocos2d::Vec2 playerPosition);
 
     // 送礼物
-    void NPC::giftItem(GiftItem* gift);
+    virtual void giftItem(GiftItem* gift);
 
     // 使 NPC 移动到目标位置
-    void moveTo(cocos2d::Vec2 targetPosition);
+    virtual void moveTo(cocos2d::Vec2 targetPosition);
 
-    //启动行走动画
-    void startWalkingAnimation();
+    // 启动行走动画
+    virtual void startWalkingAnimation();
 
     //返回当前NPC的姓名
     std::string getName();
@@ -82,17 +85,17 @@ public:
     // 获取当前好感度
     int getAffection() const;
  
-    //增加NPC任务
-    void addTask(Task* task);
+    // 增加 NPC 任务
+    virtual void addTask(Task* task);
 
-    //展示任务列表
-    void showTaskList();
+    // 展示任务列表
+    virtual void showTaskList();
 
     //键盘交互
     void onKeyPressed(EventKeyboard::KeyCode keyCode, Event* event);
 
-    //修改任务处理状态
-    void setIsProcessing(bool isProcessing);
+    // 修改任务处理状态
+    virtual void setIsProcessing(bool isProcessing);
 
     // TimeObserver 接口实现：可根据需要在 cpp 中扩展行为
     void onDayChanged(int day) override;

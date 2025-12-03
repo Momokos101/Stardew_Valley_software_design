@@ -30,6 +30,10 @@ A project of Stardew Valley based on [Cocos2d-x 3.17.2](https://docs.cocos.com/c
   - 使用 `GameMap` + `MapImplementation` 解耦地图抽象与具体实现；
   - 使用 `MapAdapter` 给上层提供统一地图接口；
   - 使用 `MapFactory` 统一创建农场、小镇、矿洞、室内等不同地图实例。
+- **NPC 管理：空对象模式（Null Object）**
+  - 实现 `NullNPC` 类作为空对象，当 `NpcManager::getNPCByName()` 找不到指定 NPC 时返回 `NullNPC` 实例而非 `nullptr`；
+  - 消除调用方的空指针检查，提升代码安全性与简洁性；
+  - 参考：[Wikipedia - Null Object Pattern](https://en.wikipedia.org/wiki/Null_object_pattern)
 
 更详细的设计模式说明与重构动机，见根目录文档：`设计模式重构报告.md`。
 

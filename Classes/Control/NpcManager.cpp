@@ -9,6 +9,7 @@
  ****************************************************************/
 #include "NpcManager.h"
 #include "Control/TimeManager.h"
+#include "Character/NullNPC.h"
 
 // 构造函数
 NpcManager::NpcManager() {}
@@ -81,18 +82,19 @@ void NpcManager::initializeNPCs() {
 }
 
 // 根据名字获取 NPC
+// 使用 Null Object Pattern：找不到 NPC 时返回 NullNPC 实例而非 nullptr
 NPC* NpcManager::getNPCByName(const std::string& name) {
     for (auto npc : _npcs) {
         if (npc->getName() == name) {
             return npc;
         }
     }
-    return nullptr;
+    // 返回 Null Object，消除调用方的空指针检查
+    return NullNPC::getInstance();
 }
 
 // 显示 NPC 对话
+// 使用 Null Object Pattern：无需空指针检查，NullNPC::showDialog() 会安全地执行空操作
 void NpcManager::showDialog(NPC* npc) {
-    if (npc) {
-        npc->showDialog();
-    }
+    npc->showDialog();  // 即使 npc 是 NullNPC，也会安全执行（空操作）
 }

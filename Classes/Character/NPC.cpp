@@ -295,6 +295,16 @@ bool NPC::isPlayerNear(cocos2d::Vec2 playerPosition) {
     return playerPosition.distance(getPosition()) < INTERACTION_DISTANCE;
 }
 
+// 使 NPC 移动到目标位置
+void NPC::moveTo(cocos2d::Vec2 targetPosition) {
+    // 更新节点位置
+    setPosition(targetPosition);
+    // 同步更新精灵位置，避免出现“节点和精灵不同步”的情况
+    if (_sprite) {
+        _sprite->setPosition(targetPosition);
+    }
+}
+
 //执行送礼逻辑
 void NPC::giftItem(GiftItem* gift) {
     int affectionIncrease = gift->getAffectionForNPC(_name);  // 获取好感度增益

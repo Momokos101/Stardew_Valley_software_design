@@ -166,6 +166,7 @@ xcopy "$(ProjectDir)..\Resources" "$(OutDir)\Resources\" /D /E /I /F /Y
     <ClCompile Include="..\Classes\Character\CharacterMove.cpp" />
     <ClCompile Include="..\Classes\Character\CharacterObjectList.cpp" />
     <ClCompile Include="..\Classes\Character\NPC.cpp" />
+    <ClCompile Include="..\Classes\Character\NullNPC.cpp" />
     <ClCompile Include="..\Classes\Control\GameViewController.cpp" />
     <ClCompile Include="..\Classes\Control\GIftItemManager.cpp" />
     <ClCompile Include="..\Classes\Control\MapStateManager.cpp" />
@@ -213,6 +214,7 @@ xcopy "$(ProjectDir)..\Resources" "$(OutDir)\Resources\" /D /E /I /F /Y
     <ClInclude Include="..\Classes\Character\CharacterObjectList.h" />
     <ClInclude Include="..\Classes\Character\GiftItem.h" />
     <ClInclude Include="..\Classes\Character\NPC.h" />
+    <ClInclude Include="..\Classes\Character\NullNPC.h" />
     <ClInclude Include="..\Classes\Character\Task.h" />
     <ClInclude Include="..\Classes\Control\GameViewController.h" />
     <ClInclude Include="..\Classes\Control\GiftItemManager.h" />
